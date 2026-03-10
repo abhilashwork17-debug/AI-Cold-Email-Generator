@@ -1,0 +1,18 @@
+{
+  "name": "ai-cold-mail-generator-backend",
+  "version": "1.0.0",
+  "description": "AI COLD MAIL GENERATOR",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "AI",
+    "PROJECT"
+  ],
+  "author": "ABHILASH MISHRA",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
