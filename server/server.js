@@ -11,7 +11,9 @@ const PORT = process.env.PORT || 3000;
 
 // ENV
 require('dotenv').config();
+// Connect to MongoDB
 connectDB();
+
 
 app.use('/api/auth',authRoutes)
 app.use('/api/ai',aiRoutes)
