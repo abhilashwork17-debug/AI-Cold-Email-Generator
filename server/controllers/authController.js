@@ -40,10 +40,12 @@ exports.registerUser = async (req, res) => {
 
     } catch (error) {
       console.log({ message: 'Error in sending OTP', error: error.message });
+      next(error);
     }
 
 
   } catch (error) {
     res.status(500).json({ message: 'Error registering user', error: error.message })
+    next(error);
   }
 }
