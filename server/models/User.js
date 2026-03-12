@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const { isValidElement } = require('react');
+
 
 const userSchema = new mongoose.Schema({
   email: {
