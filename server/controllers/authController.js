@@ -3,14 +3,15 @@ const sendEmail = require('../utils/sendEmail.js')
 
 exports.registerUser = async (req, res) => {
   try {
-    const { username, email, password } = request.body;
+    const { username, email, password } = req.body;
+
     if (!username || !email || !password) {
       return res.status(400).json({ message: 'All fields are required' });
     }
     if (password.length < 6) {
       return res.status(400).json({ message: 'Password must be atleast 6 characters' });
     }
-    if (!/\$+@\$.\$+/.test(email)) {
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
       return res.status(400).json({ message: 'Invalid email format' });
     }
 
@@ -29,7 +30,7 @@ exports.registerUser = async (req, res) => {
 
 
     // OTP Sending
-    try{
+    try {
       await sendEmail({
         to: email,
         subject: 'Your OTP Code for AI COLD MAIL GENERATOR',
@@ -37,7 +38,7 @@ exports.registerUser = async (req, res) => {
       })
 
 
-    }catch(error){
+    } catch (error) {
       console.log({ message: 'Error in sending OTP', error: error.message });
     }
 

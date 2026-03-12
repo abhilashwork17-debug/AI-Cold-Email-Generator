@@ -8,9 +8,10 @@ const authRoutes = require('./routes/authRoutes')
 const aiRoutes = require('./routes/aiRoutes')
 const PORT = process.env.PORT || 3000;
 
-
+// MIDDLEWARE
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }))
 
 // ENV
 require('dotenv').config();
@@ -21,6 +22,10 @@ connectDB();
 app.use('/api/auth',authRoutes)
 // app.use('/api/ai',aiRoutes)
 
+app.use((err,req,res,next)=>{
+  console.error(err.stack);
+  res.status(500).json({ error:'Something went wrong!' })
+})
 
 app.listen(PORT,()=>{
   console.log(`Server is running at http://localhost:${PORT}`);
