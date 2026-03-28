@@ -116,7 +116,6 @@ ${prompt}
     try {
       parsed = JSON.parse(content);
     } catch {
-      // 🔥 Try extracting JSON substring
       const match = content.match(/\{[\s\S]*\}/);
       if (match) {
         try {
@@ -129,9 +128,10 @@ ${prompt}
       }
     }
 
+    // ✅ Added safe defaults (minimal change)
     const {
-      subject = "",
-      emailBody = content,
+      subject = "No Subject Generated",
+      emailBody = content || "No Email Generated",
       linkedInDM = "",
       followUpEmail = ""
     } = parsed;
@@ -147,14 +147,13 @@ ${prompt}
       createdAt: new Date()
     });
 
+    // ✅ CLEAN RESPONSE (changed only this part)
     return res.status(200).json({
       message: "Email generated successfully",
-      email: {
-        subject,
-        emailBody,
-        linkedInDM,
-        followUpEmail
-      },
+      subject,
+      emailBody,
+      linkedInDM,
+      followUpEmail,
       data: emailRecord
     });
 
@@ -167,3 +166,12 @@ ${prompt}
     });
   }
 };
+
+exports.getHistory = async (req, res) => {
+  try {
+    const history = await EmailHistory.find({ user: req.user._id }).sort({ createdAt: -1 });
+    res.status(200).json(history);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch history', error: error.message });
+  }
+}
