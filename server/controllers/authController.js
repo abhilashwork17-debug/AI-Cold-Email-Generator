@@ -2,7 +2,7 @@ const User = require('../models/User')
 const sendEmail = require('../utils/sendEmail.js')
 const jwt = require('jsonwebtoken')
 
-const generateAuthToken = function(id){
+const generateAuthToken = function (id) {
   const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '24h' });
   return token;
 }
@@ -94,8 +94,8 @@ exports.verifyOTP = async (req, res) => {
     user.otpExpiry = null;
 
     await user.save();
-    const token  = generateAuthToken(user._id);
-    return res.status(200).json({ token,message: 'OTP verified successfully' });
+    const token = generateAuthToken(user._id);
+    return res.status(200).json({ token, message: 'OTP verified successfully' });
 
   } catch (error) {
     return res.status(500).json({
@@ -105,7 +105,7 @@ exports.verifyOTP = async (req, res) => {
   }
 }
 
-exports.LoginUser = async (req, res) => {
+exports.loginUser = async (req, res) => {
 
   try {
     if (!email || !password) {
@@ -127,7 +127,11 @@ exports.LoginUser = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
-    return res.status(200).json({ message: 'Login successful', user: { username: user.username, email: user.email } });
+    const token = generateAuthToken(user._id);
+    return res.status(200).json({
+      message: 'Login successful',
+      token, user: { username: user.username, email: user.email }
+    });
   }
   catch (error) {
     return res.status(500).json({ message: 'Error logging in', error: error.message });
