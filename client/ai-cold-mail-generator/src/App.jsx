@@ -1,22 +1,43 @@
-import React, { useState } from "react";
-import { useAuth } from './context/authContext'
-import { Router } from "react-router-dom";
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import { useAuth } from "./context/AuthContext";
+
 import LandingPage from "./pages/LandingPage";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
+import VerifyOtp from "./pages/VerifyOtp";
 
 function App() {
-  const { user,loading } = useAuth();
+  const { loading } = useAuth();
 
-  if(loading){
-    return <p>Loading...</p>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#050505] text-white flex items-center justify-center text-xl">
+        Loading...
+      </div>
+    );
   }
 
   return (
-    <Router>
-      <Toaster position = "top-right"/>
+    <BrowserRouter>
+      <Toaster position="top-right" />
+
       <Routes>
-        <Routes path = "/" element = {<LandingPage/>} />
+        {/* Public Pages */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/verify-otp" element={<VerifyOtp />} />
+
+        {/* Protected/Main Page */}
+        <Route path="/dashboard" element={<Dashboard />} />
+
+        {/* Fallback Route */}
+        <Route path="*" element={<LandingPage />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 

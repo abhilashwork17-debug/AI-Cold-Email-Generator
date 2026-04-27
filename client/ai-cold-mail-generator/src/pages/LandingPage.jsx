@@ -25,7 +25,7 @@ const LandingPage = () => {
       icon: DocumentTextIcon,
     },
     {
-      name: " Higher Conversion Rates",
+      name: "Higher Conversion Rates",
       description:
         "Personalized copy ensures higher open rates and better reply outcomes.",
       icon: ChartBarIcon,
@@ -33,21 +33,20 @@ const LandingPage = () => {
   ];
 
   return (
-    <div className="bg-white min-h-screen font-sans selection:bg-primary-100 selection:text-primary-900">
+    <div className="bg-[#050505] min-h-screen font-sans text-white selection:bg-purple-400 selection:text-white cursor-default">
       {/* Navigation */}
-      <nav className="border-b border-gray-100 bg-white/80 backdrop-blur-md fixed w-full z-50 transition-all">
+      <nav className="border-b border-gray-800 bg-[#050505]/95 backdrop-blur-md fixed w-full z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <div className="flex items-center">
-              <span className="text-2xl font-black bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
-                MailGen AI
-              </span>
-            </div>
+            <span className="text-2xl font-black bg-gradient-to-r from-purple-300 to-violet-400 bg-clip-text text-transparent">
+              MailSmith
+            </span>
+
             <div className="flex items-center space-x-4">
               {user ? (
                 <Link
                   to="/dashboard"
-                  className="inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-full text-white bg-primary-600 hover:bg-primary-700 hover:shadow-lg hover:shadow-primary-500/30 transition-all duration-200"
+                  className="px-6 py-2.5 rounded-full text-sm font-medium bg-purple-400 text-black hover:bg-purple-300 hover:scale-105 transition-all duration-300"
                 >
                   Go to Dashboard
                 </Link>
@@ -55,13 +54,14 @@ const LandingPage = () => {
                 <>
                   <Link
                     to="/login"
-                    className="text-gray-600 hover:text-gray-900 font-medium px-3 py-2 text-sm transition-colors"
+                    className="text-gray-300 hover:text-white px-3 py-2 text-sm transition-all duration-300"
                   >
                     Log in
                   </Link>
+
                   <Link
                     to="/signup"
-                    className="inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-full text-white bg-primary-600 hover:bg-primary-700 hover:shadow-lg hover:shadow-primary-500/30 transition-all duration-200"
+                    className="px-6 py-2.5 rounded-full text-sm font-medium bg-purple-400 text-black hover:bg-purple-300 hover:scale-105 transition-all duration-300"
                   >
                     Get Started
                   </Link>
@@ -72,133 +72,83 @@ const LandingPage = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <div className="relative pt-32 pb-20 sm:pt-40 sm:pb-24 overflow-hidden">
-        <div
-          className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
-          aria-hidden="true"
-        >
-          <div
-            className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
-            style={{
-              clipPath:
-                "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
-            }}
-          ></div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative text-center">
-          <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 tracking-tight mb-8">
-            Write Cold Emails That <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-600">
+      {/* Hero */}
+      <section className="pt-36 pb-24 px-6">
+        <div className="max-w-6xl mx-auto text-center">
+          <h1 className="text-5xl md:text-7xl font-extrabold leading-tight">
+            Write Cold Emails That <br />
+            <span className="bg-gradient-to-r from-purple-300 to-violet-400 bg-clip-text text-transparent">
               Actually Get Replies
             </span>
           </h1>
-          <p className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Stop wasting hours drafting outreach. Enter your prospect's context,
-            and let our AI generate the perfect structured sequence. Email,
-            Follow-up, and LinkedIn DM all at once.
+
+          <p className="mt-8 text-xl text-gray-400 max-w-3xl mx-auto">
+            Stop wasting hours drafting outreach. Let AI create perfect cold
+            email sequences instantly.
           </p>
-          <div className="mt-10 flex justify-center gap-x-6">
+
+          <div className="mt-10">
             <Link
               to={user ? "/dashboard" : "/signup"}
-              className="group inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-full text-white bg-gray-900 hover:bg-gray-800 hover:scale-105 transition-all duration-200"
+              className="inline-flex items-center px-8 py-4 rounded-full bg-purple-400 text-black font-semibold hover:bg-purple-300 hover:scale-110 transition-all duration-300"
             >
-              Start Generating for Free
-              <ArrowRightIcon className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              Start Generating
+              <ArrowRightIcon className="ml-2 h-4 w-4" />
             </Link>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Feature Section */}
-      <div className="py-24 bg-gray-50/50 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Features */}
+      <section className="py-24 px-6 bg-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Everything you need to close more deals
-            </h2>
-            <p className="mt-4 text-lg text-gray-600 border-b-2 border-transparent inline-block pb-1">
-              Built for sales teams who demand performance.
+            <h2 className="text-4xl font-bold">Everything You Need</h2>
+            <p className="text-gray-400 mt-4">
+              Built for professionals who want results.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="grid md:grid-cols-3 gap-8">
             {features.map((feature) => (
               <div
                 key={feature.name}
-                className="relative p-8 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+                className="p-8 rounded-2xl bg-[#111111] border border-gray-800 hover:bg-[#1a1a1a] hover:shadow-[0_0_25px_rgba(168,85,247,0.15)] transition-all duration-300"
               >
-                <div className="h-12 w-12 rounded-xl bg-primary-50 flex items-center justify-center mb-6">
-                  <feature.icon
-                    className="h-6 w-6 text-primary-600"
-                    aria-hidden="true"
-                  />
+                <div className="w-10 h-10 rounded-lg bg-purple-400/10 flex items-center justify-center mb-6">
+                  <feature.icon className="w-5 h-5 text-purple-300" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                  {feature.name}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {feature.description}
-                </p>
+
+                <h3 className="text-xl font-semibold mb-3">{feature.name}</h3>
+                <p className="text-gray-400">{feature.description}</p>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Premium Look CTA */}
-      <div className="relative isolate overflow-hidden bg-gray-900">
-        <div className="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Ready to scale your outreach?
-            </h2>
-            <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-300">
-              Join hundreds of sales professionals using MailGen to accelerate
-              their pipeline today.
-            </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6">
-              <Link
-                to="/signup"
-                className="rounded-full bg-primary-500 px-8 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all hover:scale-105"
-              >
-                Create Free Account
-              </Link>
-            </div>
-          </div>
+      {/* CTA */}
+      <section className="py-24 px-6 text-center">
+        <h2 className="text-4xl font-bold">Ready to scale your outreach?</h2>
+        <p className="text-gray-400 mt-4">
+          Join hundreds of professionals using MailSmith.
+        </p>
+
+        <div className="mt-10">
+          <Link
+            to="/signup"
+            className="px-8 py-4 rounded-full bg-purple-400 text-black font-semibold hover:bg-purple-300 hover:scale-110 transition-all duration-300"
+          >
+            Create Free Account
+          </Link>
         </div>
-        <svg
-          viewBox="0 0 1024 1024"
-          className="absolute left-1/2 top-1/2 -z-10 h-[64rem] w-[64rem] -translate-x-1/2 [mask-image:radial-gradient(closest-side,white,transparent)]"
-          aria-hidden="true"
-        >
-          <circle
-            cx="512"
-            cy="512"
-            r="512"
-            fill="url(#gradient)"
-            fillOpacity="0.7"
-          />
-          <defs>
-            <radialGradient id="gradient">
-              <stop stopColor="#4f46e5" />
-              <stop offset="1" stopColor="#818cf8" />
-            </radialGradient>
-          </defs>
-        </svg>
-      </div>
+      </section>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-100 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
-          <span className="text-xl font-black bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-4">
-            MailGen AI
-          </span>
-          <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} MailGen AI. All rights reserved.
-          </p>
-        </div>
+      <footer className="border-t border-gray-800 py-10 text-center bg-black">
+        <p className="text-gray-500 text-sm">
+          © {new Date().getFullYear()} MailSmith. All rights reserved.
+        </p>
       </footer>
     </div>
   );

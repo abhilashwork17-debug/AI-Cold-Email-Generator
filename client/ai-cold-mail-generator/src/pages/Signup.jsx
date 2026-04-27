@@ -2,25 +2,33 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import api from "../utils/api";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const { data } = await api.post("/auth/register", {
         name,
         email,
         password,
       });
+
       toast.success(data.message);
-      navigate("/verify-otp", { state: { userId: data.userId, email } });
+
+      navigate("/verify-otp", {
+        state: { userId: data.userId, email },
+      });
     } catch (error) {
       toast.error(error.response?.data?.message || "Registration failed");
     } finally {
@@ -29,79 +37,76 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Create your account
+    <div className="min-h-screen bg-[#050505] flex items-center justify-center px-6 py-12">
+      <div className="w-full max-w-md bg-[#111111] border border-gray-800 rounded-2xl p-8 hover:bg-[#1a1a1a] hover:shadow-[0_0_25px_rgba(168,85,247,0.12)] transition-all duration-300">
+        <h2 className="text-3xl font-extrabold text-white text-center">
+          Create Account
         </h2>
-      </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-sm border border-gray-100 sm:rounded-xl sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                />
-              </div>
-            </div>
+        <p className="text-gray-400 text-center mt-2 mb-8">
+          Join MailSmith today
+        </p>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <div className="mt-1">
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                />
-              </div>
-            </div>
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          <input
+            type="text"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Full Name"
+            className="w-full px-4 py-3 rounded-xl bg-[#050505] border border-gray-800 text-white placeholder-gray-500 focus:outline-none focus:border-purple-400"
+          />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1">
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                />
-              </div>
-            </div>
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email Address"
+            className="w-full px-4 py-3 rounded-xl bg-[#050505] border border-gray-800 text-white placeholder-gray-500 focus:outline-none focus:border-purple-400"
+          />
+
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              className="w-full px-4 py-3 pr-12 rounded-xl bg-[#050505] border border-gray-800 text-white placeholder-gray-500 focus:outline-none focus:border-purple-400"
+            />
 
             <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-300"
             >
-              {loading ? "Creating account..." : "Sign up"}
+              {showPassword ? (
+                <EyeSlashIcon className="w-5 h-5" />
+              ) : (
+                <EyeIcon className="w-5 h-5" />
+              )}
             </button>
-          </form>
-
-          <div className="mt-6 text-center text-sm">
-            <span className="text-gray-600">Already have an account? </span>
-            <Link
-              to="/login"
-              className="font-medium text-primary-600 hover:text-primary-500"
-            >
-              Sign in
-            </Link>
           </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 rounded-full bg-purple-400 text-black font-semibold hover:bg-purple-300 hover:scale-105 transition-all duration-300 disabled:opacity-50"
+          >
+            {loading ? "Creating account..." : "Sign up"}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center text-sm">
+          <span className="text-gray-400">Already have an account? </span>
+
+          <Link
+            to="/login"
+            className="text-purple-300 hover:text-purple-200 font-medium"
+          >
+            Sign in
+          </Link>
         </div>
       </div>
     </div>

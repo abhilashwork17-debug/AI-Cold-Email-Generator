@@ -1,140 +1,164 @@
-const User = require('../models/User')
-const sendEmail = require('../utils/sendEmail.js')
-const jwt = require('jsonwebtoken')
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const sendEmail = require('../utils/sendEmail');
 
-const generateAuthToken = function (id) {
-  const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '24h' });
-  return token;
-}
+// Generate JWT Token
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+};
+
+// Generate 6-digit OTP
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
 
 exports.registerUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { name, email, password } = req.body;
 
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: 'All fields are required' });
+    // Input validation
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Name, email, and password are required' });
     }
+
+    if (email && !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      return res.status(400).json({ message: 'Please provide a valid email address' });
+    }
+
     if (password.length < 6) {
-      return res.status(400).json({ message: 'Password must be atleast 6 characters' });
-    }
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
-      return res.status(400).json({ message: 'Invalid email format' });
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
     }
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Email already in use' })
+    if (name.length < 2) {
+      return res.status(400).json({ message: 'Name must be at least 2 characters long' });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const userExists = await User.findOne({ email: email.toLowerCase() });
 
-    // OTP valid for 10 minutes
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    if (userExists) {
+      return res.status(400).json({ message: 'Email already registered. Please try logging in.' });
+    }
 
-    // ✅ FIX: Save OTP in DB
-    const user = await User.create({ username, email, password, otp, otpExpiry });
+    const otp = generateOTP();
+    const otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-    // OTP Sending
+    const user = await User.create({
+      name: name.trim(),
+      email: email.toLowerCase(),
+      password,
+      otp,
+      otpExpiry
+    });
+
+    // Send OTP email
+    const message = `Your OTP for verification is: ${otp}\n\nThis OTP is valid for 10 minutes.`;
     try {
-      await sendEmail({
-        to: email,
-        subject: 'Your OTP Code for AI COLD MAIL GENERATOR',
-        text: `Your OTP code is ${otp}. It is valid for 10 minutes only.`
-      });
+      await sendEmail({ email: user.email, subject: 'Email Verification OTP - AI Cold Mail Generator', message });
     } catch (error) {
-      console.log({ message: 'Error in sending OTP', error: error.message });
+      console.log('Email sending error:', error.message);
+      // Still allow registration even if email fails
     }
 
-    // ✅ FIX: Only one response
-    return res.status(201).json({
-      message: 'User registered successfully',
-      user: { username: user.username, email: user.email }
+    res.status(201).json({
+      message: 'User registered successfully. Please verify OTP sent to your email.',
+      userId: user._id,
+      email: user.email
     });
-
   } catch (error) {
-    return res.status(500).json({
-      message: 'Error registering user',
-      error: error.message
-    });
+    console.error('Registration error:', error);
+    res.status(500).json({ message: 'Registration failed', error: error.message });
   }
-}
-
+};
 
 exports.verifyOTP = async (req, res) => {
   try {
-    const { email, otp } = req.body;
+    const { userId, otp } = req.body;
 
-    if (!email || !otp) {
-      return res.status(400).json({ message: 'Email and OTP are required' });
+    if (!userId || !otp) {
+      return res.status(400).json({ message: 'User ID and OTP are required' });
     }
 
-    const user = await User.findOne({ email });
+    if (!/^\d{6}$/.test(otp)) {
+      return res.status(400).json({ message: 'OTP must be a 6-digit number' });
+    }
+
+    const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(400).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     if (user.isVerified) {
-      return res.status(400).json({ message: 'User already verified' });
+      return res.status(400).json({ message: 'User already verified. Please login.' });
+    }
+
+    if (!user.otp || !user.otpExpiry) {
+      return res.status(400).json({ message: 'No OTP found. Please register again.' });
+    }
+
+    if (Date.now() > user.otpExpiry.getTime()) {
+      return res.status(400).json({ message: 'OTP has expired. Please register again.' });
     }
 
     if (user.otp !== otp) {
-      return res.status(400).json({ message: 'Invalid OTP' });
-    }
-
-    // ✅ FIX: correct expiry message
-    if (user.otpExpiry < new Date()) {
-      return res.status(400).json({ message: 'OTP expired' });
+      return res.status(400).json({ message: 'Invalid OTP. Please try again.' });
     }
 
     user.isVerified = true;
-
-    // Optional cleanup 
-    user.otp = null;
-    user.otpExpiry = null;
-
+    user.otp = undefined;
+    user.otpExpiry = undefined;
     await user.save();
-    const token = generateAuthToken(user._id);
-    return res.status(200).json({ token, message: 'OTP verified successfully' });
 
-  } catch (error) {
-    return res.status(500).json({
-      message: 'Error verifying OTP',
-      error: error.message
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token: generateToken(user._id),
+      message: 'Email verified successfully!'
     });
+  } catch (error) {
+    console.error('OTP verification error:', error);
+    res.status(500).json({ message: 'Verification failed', error: error.message });
   }
-}
+};
 
 exports.loginUser = async (req, res) => {
-
   try {
+    const { email, password } = req.body;
+
+    // Input validation
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    const user = await User.findOne({ email }).select('+password +isVerified');
+    const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
-      return res.status(400).json({ message: 'User not found' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     if (!user.isVerified) {
-      return res.status(400).json({ message: 'User not verified. Please verify your email first.' });
+      return res.status(401).json({
+        message: 'Please verify your email first',
+        userId: user._id
+      });
     }
 
-    const isMatch = await user.comparePassword(password);
+    const isPasswordValid = await user.matchPassword(password);
 
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
-    const token = generateAuthToken(user._id);
-    return res.status(200).json({
-      message: 'Login successful',
-      token, user: { username: user.username, email: user.email }
+
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token: generateToken(user._id),
+      message: 'Login successful!'
     });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Login failed', error: error.message });
   }
-  catch (error) {
-    return res.status(500).json({ message: 'Error logging in', error: error.message });
-  }
-
-}
+};

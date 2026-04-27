@@ -14,6 +14,7 @@ const Dashboard = () => {
     if (!prompt.trim()) return;
 
     setLoading(true);
+
     try {
       const { data } = await api.post("/ai/generate-email", { prompt });
       setResult(data);
@@ -28,118 +29,103 @@ const Dashboard = () => {
   const copyToClipboard = (text, type) => {
     navigator.clipboard.writeText(text);
     setCopied(type);
-    toast.success("Copied to clipboard!");
-    setTimeout(() => setCopied(""), 2000);
+    toast.success("Copied!");
+
+    setTimeout(() => {
+      setCopied("");
+    }, 2000);
   };
 
   const ResultCard = ({ title, content, type }) => (
-    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-4">
+    <div className="bg-[#111111] p-6 rounded-2xl border border-gray-800 mb-4 hover:bg-[#1a1a1a] hover:shadow-[0_0_20px_rgba(168,85,247,0.12)] transition-all duration-300">
       <div className="flex justify-between items-center mb-3">
-        <h3 className="font-medium text-gray-800">{title}</h3>
+        <h3 className="font-semibold text-white">{title}</h3>
+
         <button
           onClick={() => copyToClipboard(content, type)}
-          className="text-gray-400 hover:text-primary-600 transition-colors"
-          title="Copy"
+          className="text-gray-400 hover:text-purple-300 transition-all duration-300 hover:scale-110"
         >
           {copied === type ? (
-            <CheckIcon className="w-5 h-5 text-green-500" />
+            <CheckIcon className="w-5 h-5 text-green-400" />
           ) : (
             <ClipboardDocumentIcon className="w-5 h-5" />
           )}
         </button>
       </div>
-      <p className="text-sm text-gray-600 whitespace-pre-wrap">{content}</p>
+
+      <p className="text-sm text-gray-400 whitespace-pre-wrap">{content}</p>
     </div>
   );
 
   return (
-    <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6 h-[calc(100vh-8rem)]">
-      {/* Input Section */}
-      <div className="w-full lg:w-1/3 bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">
-          New Campaign
-        </h2>
-        <form onSubmit={handleGenerate} className="flex-1 flex flex-col">
-          <label className="text-sm font-medium text-gray-700 mb-2">
-            Context / Prompt
-          </label>
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            className="flex-1 w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow resize-none"
-            placeholder="e.g. Write a cold email to a marketing director at a SaaS company offering our AI-driven analytics tool that increases retention by 20%..."
-          />
-          <button
-            type="submit"
-            disabled={loading || !prompt.trim()}
-            className="mt-4 w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <span className="flex items-center">
-                <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Generating...
-              </span>
-            ) : (
-              "Generate Output"
-            )}
-          </button>
-        </form>
-      </div>
+    <div className="min-h-screen bg-[#050505] text-white px-6 py-10">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
+        {/* Input Section */}
+        <div className="w-full lg:w-1/3 bg-[#111111] p-6 rounded-2xl border border-gray-800 hover:bg-[#1a1a1a] transition-all duration-300">
+          <h2 className="text-xl font-bold mb-5">New Campaign</h2>
 
-      {/* Output Section */}
-      <div className="w-full lg:w-2/3 flex flex-col overflow-y-auto">
-        {result ? (
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              AI Results
-            </h2>
-            <ResultCard
-              title="Subject Line"
-              content={result.subject}
-              type="subject"
+          <form onSubmit={handleGenerate} className="flex flex-col">
+            <label className="text-sm text-gray-400 mb-2">
+              Context / Prompt
+            </label>
+
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Write a cold email for SaaS founder..."
+              className="h-72 bg-[#050505] border border-gray-800 rounded-xl p-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-400 resize-none transition-all"
             />
-            <ResultCard
-              title="Cold Email"
-              content={result.emailBody}
-              type="email"
-            />
-            <ResultCard
-              title="LinkedIn DM"
-              content={result.linkedInDM}
-              type="linkedin"
-            />
-            <ResultCard
-              title="Follow-up Email"
-              content={result.followUpEmail}
-              type="followup"
-            />
-          </div>
-        ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-gray-400 bg-white border border-gray-200 rounded-xl">
-            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-              <ClipboardDocumentIcon className="w-8 h-8 text-gray-400" />
+
+            <button
+              type="submit"
+              disabled={loading || !prompt.trim()}
+              className="mt-5 w-full bg-purple-400 text-black font-semibold py-3 rounded-full hover:bg-purple-300 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Generating..." : "Generate Output"}
+            </button>
+          </form>
+        </div>
+
+        {/* Output Section */}
+        <div className="w-full lg:w-2/3">
+          {result ? (
+            <>
+              <h2 className="text-xl font-bold mb-5">AI Results</h2>
+
+              <ResultCard
+                title="Subject Line"
+                content={result.subject}
+                type="subject"
+              />
+
+              <ResultCard
+                title="Cold Email"
+                content={result.emailBody}
+                type="email"
+              />
+
+              <ResultCard
+                title="LinkedIn DM"
+                content={result.linkedInDM}
+                type="linkedin"
+              />
+
+              <ResultCard
+                title="Follow-up Email"
+                content={result.followUpEmail}
+                type="followup"
+              />
+            </>
+          ) : (
+            <div className="h-full min-h-[500px] flex flex-col items-center justify-center bg-[#111111] border border-gray-800 rounded-2xl text-gray-500">
+              <div className="w-16 h-16 rounded-full bg-[#1a1a1a] flex items-center justify-center mb-4">
+                <ClipboardDocumentIcon className="w-8 h-8 text-purple-300" />
+              </div>
+
+              <p>Submit a prompt to generate AI outputs.</p>
             </div>
-            <p className="text-sm">Submit a prompt to generate AI outputs.</p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 const VerifyOtp = () => {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+
   const location = useLocation();
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -22,8 +23,13 @@ const VerifyOtp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      const { data } = await api.post("/auth/verify-otp", { userId, otp });
+      const { data } = await api.post("/auth/verify-otp", {
+        userId,
+        otp,
+      });
+
       login(data);
       toast.success("Email verified successfully!");
       navigate("/dashboard");
@@ -35,44 +41,45 @@ const VerifyOtp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Verify your email
+    <div className="min-h-screen bg-[#050505] flex items-center justify-center px-6 py-12">
+      <div className="w-full max-w-md bg-[#111111] border border-gray-800 rounded-2xl p-8 hover:bg-[#1a1a1a] hover:shadow-[0_0_25px_rgba(168,85,247,0.12)] transition-all duration-300">
+        <h2 className="text-3xl font-extrabold text-white text-center">
+          Verify Email
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          We sent a code to{" "}
-          <span className="font-medium text-gray-900">{email}</span>
+
+        <p className="text-gray-400 text-center mt-2 mb-8">
+          We sent a 6-digit code to
         </p>
-      </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-sm border border-gray-100 sm:rounded-xl sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 text-center mb-2">
-                Enter 6-digit OTP
-              </label>
-              <input
-                type="text"
-                required
-                maxLength={6}
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-center text-2xl tracking-widest font-mono"
-                placeholder="000000"
-              />
-            </div>
+        <p className="text-purple-300 text-center font-medium mb-8 break-all">
+          {email}
+        </p>
 
-            <button
-              type="submit"
-              disabled={loading || otp.length !== 6}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
-            >
-              {loading ? "Verifying..." : "Verify Email"}
-            </button>
-          </form>
-        </div>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <div>
+            <label className="block text-sm text-gray-300 text-center mb-3">
+              Enter OTP
+            </label>
+
+            <input
+              type="text"
+              required
+              maxLength={6}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              placeholder="000000"
+              className="w-full px-4 py-4 rounded-xl bg-[#050505] border border-gray-800 text-white text-center text-2xl tracking-[0.4em] font-mono placeholder-gray-600 focus:outline-none focus:border-purple-400 transition-all"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading || otp.length !== 6}
+            className="w-full py-3 rounded-full bg-purple-400 text-black font-semibold hover:bg-purple-300 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Verifying..." : "Verify Email"}
+          </button>
+        </form>
       </div>
     </div>
   );
