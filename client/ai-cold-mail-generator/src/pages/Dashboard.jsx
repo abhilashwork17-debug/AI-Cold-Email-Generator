@@ -3,7 +3,11 @@ import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
-import { ClipboardDocumentIcon, CheckIcon } from "@heroicons/react/24/outline";
+import {
+  ClipboardDocumentIcon,
+  CheckIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -18,6 +22,7 @@ const Dashboard = () => {
   const [copied, setCopied] = useState("");
 
   const [guestUsage, setGuestUsage] = useState(0);
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     const count = localStorage.getItem("guestUsage");
@@ -32,9 +37,9 @@ const Dashboard = () => {
       return;
     }
 
-    /* Guest Limit Check */
+    /* Mandatory auth after 2 uses */
     if (!user && guestUsage >= 2) {
-      toast.error("Free limit reached. Please login to continue.");
+      setShowPopup(true);
       return;
     }
 
@@ -67,11 +72,15 @@ Additional Details: ${prompt}
 
       setResult(data);
 
-      /* Guest usage increment */
+      /* Guest usage count */
       if (!user) {
         const newCount = guestUsage + 1;
         localStorage.setItem("guestUsage", newCount);
         setGuestUsage(newCount);
+
+        if (newCount >= 2) {
+          setShowPopup(true);
+        }
       }
 
       toast.success("Successfully generated!");
@@ -123,17 +132,14 @@ Additional Details: ${prompt}
         <div className="w-full lg:w-1/3 bg-[#111111] p-6 rounded-2xl border border-gray-800">
           <h2 className="text-xl font-bold mb-2">New Campaign</h2>
 
-          {/* Guest Usage */}
-          {!user && (
+          {!user ? (
             <p className="text-sm text-gray-400 mb-5">
               Free Uses Left:{" "}
               <span className="text-purple-300 font-semibold">
                 {2 - guestUsage > 0 ? 2 - guestUsage : 0}
               </span>
             </p>
-          )}
-
-          {user && (
+          ) : (
             <p className="text-sm text-green-400 mb-5">
               Unlimited Access Enabled
             </p>
@@ -193,29 +199,6 @@ Additional Details: ${prompt}
             >
               {loading ? "Generating..." : "Generate Output"}
             </button>
-
-            {/* Guest Lock */}
-            {!user && guestUsage >= 2 && (
-              <div className="mt-5 text-center">
-                <p className="text-red-400 text-sm mb-3">Free limit reached</p>
-
-                <div className="flex gap-3 justify-center">
-                  <Link
-                    to="/login"
-                    className="px-5 py-2 rounded-full bg-purple-400 text-black font-semibold"
-                  >
-                    Login
-                  </Link>
-
-                  <Link
-                    to="/signup"
-                    className="px-5 py-2 rounded-full border border-gray-700"
-                  >
-                    Sign Up
-                  </Link>
-                </div>
-              </div>
-            )}
           </form>
         </div>
 
@@ -256,6 +239,45 @@ Additional Details: ${prompt}
           )}
         </div>
       </div>
+
+      {/* POPUP */}
+      {showPopup && !user && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center px-6">
+          <div className="w-full max-w-md bg-[#111111] border border-gray-800 rounded-3xl p-8 relative">
+            <button
+              onClick={() => setShowPopup(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+
+            <h2 className="text-2xl font-bold text-white mb-3">
+              Create Free Account
+            </h2>
+
+            <p className="text-gray-400 mb-6 leading-7">
+              You've used your free generations. Register now to continue using
+              MailSmith.
+            </p>
+
+            <div className="flex gap-3">
+              <Link
+                to="/login"
+                className="flex-1 text-center bg-purple-400 text-black py-3 rounded-full font-semibold hover:bg-purple-300"
+              >
+                Sign In
+              </Link>
+
+              <Link
+                to="/signup"
+                className="flex-1 text-center border border-gray-700 py-3 rounded-full hover:border-purple-400"
+              >
+                Sign Up
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
