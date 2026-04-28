@@ -3,10 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -17,13 +19,29 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const { data } = await api.post("/auth/login", { email, password });
+      const { data } = await api.post("/auth/login", {
+        email: email.trim(),
+        password,
+      });
 
       login(data);
       toast.success("Logged in successfully!");
       navigate("/dashboard");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
+      const msg = error.response?.data?.message;
+      const userId = error.response?.data?.userId;
+
+      if (msg === "Please verify your email first") {
+        toast.error(msg);
+
+        navigate("/verify-otp", {
+          state: { userId, email: email.trim() },
+        });
+
+        return;
+      }
+
+      toast.error(msg || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -59,14 +77,28 @@ const Login = () => {
           <div>
             <label className="block text-sm text-gray-300 mb-2">Password</label>
 
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-[#050505] border border-gray-800 text-white placeholder-gray-500 focus:outline-none focus:border-purple-400 transition-all"
-              placeholder="Enter your password"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 pr-12 rounded-xl bg-[#050505] border border-gray-800 text-white placeholder-gray-500 focus:outline-none focus:border-purple-400 transition-all"
+                placeholder="Enter your password"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-300"
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="w-5 h-5" />
+                ) : (
+                  <EyeIcon className="w-5 h-5" />
+                )}
+              </button>
+            </div>
           </div>
 
           <button

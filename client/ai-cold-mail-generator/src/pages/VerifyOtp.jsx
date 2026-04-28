@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import api from "../utils/api";
@@ -15,8 +15,13 @@ const VerifyOtp = () => {
   const userId = location.state?.userId;
   const email = location.state?.email;
 
+  useEffect(() => {
+    if (!userId) {
+      navigate("/signup");
+    }
+  }, [userId, navigate]);
+
   if (!userId) {
-    navigate("/signup");
     return null;
   }
 
@@ -27,7 +32,7 @@ const VerifyOtp = () => {
     try {
       const { data } = await api.post("/auth/verify-otp", {
         userId,
-        otp,
+        otp: otp.trim(),
       });
 
       login(data);

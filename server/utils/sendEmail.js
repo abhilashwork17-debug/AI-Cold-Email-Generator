@@ -1,9 +1,11 @@
-const nodemailer = require('nodemailer')
+const nodemailer = require('nodemailer');
+
 const sendEmail = async (options) => {
   try {
-    if (!process.env.EMAIL_USER || process.env.EMAIL_PASS) {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       throw new Error('Email credentials are not set in environment variables');
     }
+
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -14,19 +16,19 @@ const sendEmail = async (options) => {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: options.to,
+      to: options.email,
       subject: options.subject,
-      text: options.text,
-      html: `<p>${options.text}</p>`
+      text: options.message,
+      html: `<p>${options.message}</p>`
     };
 
     await transporter.sendMail(mailOptions);
-    console.log('Email send successfully');
+    console.log('Email sent successfully');
 
   } catch (error) {
-    console.log('Error sending email: ', error.message);
+    console.log('Error sending email:', error.message);
     throw error;
   }
-}
+};
 
 module.exports = sendEmail;

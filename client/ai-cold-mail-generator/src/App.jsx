@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import VerifyOtp from "./pages/VerifyOtp";
+import History from "./pages/History";
 
 function App() {
   const { loading } = useAuth();
@@ -31,10 +32,11 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-otp" element={<VerifyOtp />} />
 
-        {/* Protected/Main Page */}
+        {/* Main Pages */}
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/history" element={<History />} />
 
-        {/* Fallback Route */}
+        {/* Fallback */}
         <Route path="*" element={<LandingPage />} />
       </Routes>
     </BrowserRouter>

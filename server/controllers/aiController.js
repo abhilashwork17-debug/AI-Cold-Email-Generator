@@ -1,48 +1,58 @@
-const axios = require('axios');
-const EmailHistory = require('../models/EmailHistory');
+const axios = require("axios");
+const EmailHistory = require("../models/EmailHistory");
 
 exports.generateEmail = async (req, res) => {
   try {
-    const { prompt } = req.body;
+    const { prompt, experience } = req.body;
 
     if (!prompt) {
-      return res.status(400).json({ message: 'Prompt is required' });
+      return res.status(400).json({
+        message: "Prompt is required",
+      });
     }
 
-    if (typeof prompt !== 'string') {
-      return res.status(400).json({ message: 'Prompt must be a string' });
-    }
-
-    if (prompt.trim().length === 0) {
-      return res.status(400).json({ message: 'Prompt cannot be empty' });
-    }
-
-    if (prompt.length > 2000) {
-      return res.status(400).json({ message: 'Prompt cannot exceed 2000 characters' });
-    }
-
-    // Call Groq API (Free tier - No quota issues!)
     const groqApiKey = process.env.GROQ_API_KEY;
+
     if (!groqApiKey) {
-      return res.status(500).json({ message: 'AI service is not configured' });
+      return res.status(500).json({
+        message: "AI service is not configured",
+      });
     }
 
-    const systemPrompt = `You are an expert job outreach strategist.
+    let experienceMode = "Mid-level professional";
 
-Your task is to generate a HIGH-CONVERTING cold email to a recruiter for a job opportunity.
+    if (experience === "0-1")
+      experienceMode = "Fresher / Entry-level candidate";
 
-IMPORTANT:
-- Even if the user gives only 2–4 words, assume realistic context.
-- Do NOT ask for clarification.
-- Make professional assumptions.
-- Avoid generic phrases.
-- Keep it concise and structured.
+    if (experience === "1-2")
+      experienceMode = "Junior professional";
 
-====================================================
-OUTPUT FORMAT (STRICT)
-====================================================
+    if (experience === "2-3")
+      experienceMode = "Mid-level candidate";
 
-Return ONLY valid JSON:
+    if (experience === "3-5")
+      experienceMode = "Experienced professional";
+
+    if (experience === "5-10")
+      experienceMode = "Senior professional";
+
+    if (experience === "10+")
+      experienceMode = "Leadership / Managerial candidate";
+
+
+    const systemPrompt = `
+You are an elite recruiter outreach strategist.
+
+Create premium outreach content for job opportunities.
+
+Candidate Level:
+${experienceMode}
+
+Use this experience level while writing confidence, achievements, and tone.
+
+==================================================
+RETURN ONLY VALID JSON
+==================================================
 
 {
   "subject": "",
@@ -51,183 +61,140 @@ Return ONLY valid JSON:
   "followUpEmail": ""
 }
 
-No markdown.
-No explanations.
-Only JSON.
+==================================================
+RULES
+==================================================
 
-====================================================
-CONTEXT ASSUMPTIONS
-====================================================
+SUBJECT:
+- 6 to 10 words
+- Powerful
+- Professional
+- Relevant to job role
 
-Assume:
-- Candidate has 2+ years experience
-- Strong in DSA and system design
-- Has worked on backend APIs or scalable systems
-- Has contributed to production-level features
-- Actively seeking Software Engineer roles
+==================================================
+COLD EMAIL FORMAT
+==================================================
 
-If prompt is short like:
-"SDE role"
-"Backend engineer"
-"Startup job"
-"Product company"
+Dear Hiring Manager,
 
-Create intelligent assumptions about:
-- Scaling challenges
-- Hiring urgency
-- Performance or system reliability issues
-- Team growth
+[ONE LINE GAP]
 
-====================================================
-SUBJECT LINE RULES
-====================================================
+Professional body introducing candidate, skills, achievements, interest.
 
-• 6–9 words
-• Must sound confident
-• No generic phrases like:
-  - "Quick question"
-  - "Looking for opportunity"
-  - "Job application"
-• Should highlight value or experience
+[ONE LINE GAP]
 
-Example styles:
-"Backend engineer with 2+ yrs scaling APIs"
-"Engineer focused on scalable system design"
-"Software engineer improving system performance"
+Best Regards,
+Candidate Name
 
-====================================================
-EMAIL BODY STRUCTURE (STRICT)
-====================================================
+==================================================
+LINKEDIN DM FORMAT
+==================================================
 
-Keep 60–90 words.
+Hi Recruiter,
 
-Line 1: Personalized observation about hiring  
-Line 2: Mention common hiring/scaling challenge  
-Line 3-4: Candidate's experience and strengths  
-Line 5: Specific impact or contribution  
-Line 6: Clear CTA  
-Line 7: Sign-off with name and title  
+[ONE LINE GAP]
 
-Tone:
-• Confident
-• Professional
-• Not desperate
-• No emojis
-• No hype words
+Short personalized outreach message.
 
-====================================================
-LINKEDIN DM STRUCTURE
-====================================================
+[ONE LINE GAP]
 
-30–50 words.
-Short, conversational.
-Observation + value + soft ask.
+Thanks,
+Candidate Name
 
-====================================================
-FOLLOW-UP EMAIL STRUCTURE
-====================================================
+==================================================
+FOLLOW UP EMAIL FORMAT
+==================================================
 
-50–80 words.
-New angle.
-Emphasize long-term value.
-Professional urgency.
-Clear CTA.
+Hello,
 
-====================================================
+[ONE LINE GAP]
 
-Return ONLY valid JSON.`;
+Following up on previous message professionally.
 
-    const fullPrompt = `${systemPrompt}\n\nUser REQUEST: "${prompt.trim()}"\n\nGenerate STRONG cold email even if prompt is short. Make smart assumptions. Return ONLY valid JSON:\n{"subject": "...", "emailBody": "...", "linkedInDM": "...", "followUpEmail": "..."}`;
+[ONE LINE GAP]
+
+Regards,
+Candidate Name
+
+==================================================
+PROMPT FROM USER:
+${prompt}
+
+Return ONLY JSON.
+`;
+
     const aiResponse = await axios.post(
-      'https://api.groq.com/openai/v1/chat/completions',
+      "https://api.groq.com/openai/v1/chat/completions",
       {
         model: "llama-3.3-70b-versatile",
         messages: [
           {
             role: "user",
-            content: fullPrompt
-          }
+            content: systemPrompt,
+          },
         ],
         temperature: 0.7,
-        max_tokens: 1024
+        max_tokens: 1024,
       },
       {
         headers: {
-          'Authorization': `Bearer ${groqApiKey}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${groqApiKey}`,
+          "Content-Type": "application/json",
         },
-        timeout: 30000
       }
     );
 
-    // Parse the Groq response
-    if (!aiResponse.data.choices || !aiResponse.data.choices[0] || !aiResponse.data.choices[0].message) {
-      throw new Error('Invalid response from Groq API');
-    }
+    const generatedText =
+      aiResponse.data.choices[0].message.content;
 
-    const generatedText = aiResponse.data.choices[0].message.content;
-
-    // Extract JSON from the response
     const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
-    let parsedResponse;
 
-    try {
-      parsedResponse = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(generatedText);
-    } catch (parseError) {
-      console.error('JSON parse error:', parseError, 'Generated text:', generatedText);
-      return res.status(500).json({
-        message: 'Failed to parse AI response',
-        error: 'The AI generated invalid JSON. Please try again.'
+    const parsedResponse = jsonMatch
+      ? JSON.parse(jsonMatch[0])
+      : JSON.parse(generatedText);
+
+
+    if (req.user) {
+      const historyEntry = await EmailHistory.create({
+        userId: req.user._id,
+        prompt,
+        subject: parsedResponse.subject || "",
+        emailBody: parsedResponse.emailBody || "",
+        linkedInDM: parsedResponse.linkedInDM || "",
+        followUpEmail: parsedResponse.followUpEmail || "",
       });
+
+      return res.status(200).json(historyEntry);
     }
 
-    const emailData = {
-      subject: parsedResponse.subject || "New Opportunity",
+    /* Guest Response */
+    return res.status(200).json({
+      subject: parsedResponse.subject || "",
       emailBody: parsedResponse.emailBody || "",
       linkedInDM: parsedResponse.linkedInDM || "",
-      followUpEmail: parsedResponse.followUpEmail || ""
-    };
-
-    // Validate response data
-    if (!emailData.subject || !emailData.emailBody) {
-      return res.status(500).json({
-        message: 'AI generated incomplete email data. Please try again.'
-      });
-    }
-
-    // Save to history
-    const historyEntry = await EmailHistory.create({
-      userId: req.user._id,
-      prompt: prompt.trim(),
-      subject: emailData.subject,
-      emailBody: emailData.emailBody,
-      linkedInDM: emailData.linkedInDM,
-      followUpEmail: emailData.followUpEmail
+      followUpEmail: parsedResponse.followUpEmail || "",
     });
 
-    res.status(200).json(historyEntry);
   } catch (error) {
-    console.error('AI Generation Error:', error.response?.data || error.message);
+    console.error(error.message);
 
-    if (error.response?.status === 429) {
-      return res.status(429).json({
-        message: 'Too many requests. Please wait a moment before trying again.',
-        error: 'Rate limit exceeded'
-      });
-    }
-
-    res.status(500).json({
-      message: 'Failed to generate email',
-      error: error.response?.data?.error?.message || error.message
+    return res.status(500).json({
+      message: "Failed to generate email",
     });
   }
 };
 
 exports.getHistory = async (req, res) => {
   try {
-    const history = await EmailHistory.find({ userId: req.user._id }).sort({ createdAt: -1 });
+    const history = await EmailHistory.find({
+      userId: req.user._id,
+    }).sort({ createdAt: -1 });
+
     res.status(200).json(history);
+
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch history' });
+    res.status(500).json({
+      message: "Failed to fetch history",
+    });
   }
 };

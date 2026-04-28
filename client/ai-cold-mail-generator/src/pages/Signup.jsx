@@ -30,7 +30,16 @@ const Signup = () => {
         state: { userId: data.userId, email },
       });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Registration failed");
+      const msg = error.response?.data?.message;
+
+      // ONLY necessary improvement added here
+      if (msg === "Email already registered. Please try logging in.") {
+        toast.error(msg);
+        navigate("/login");
+        return;
+      }
+
+      toast.error(msg || "Registration failed");
     } finally {
       setLoading(false);
     }
