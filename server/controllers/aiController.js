@@ -1,58 +1,33 @@
-const axios = require("axios");
-const EmailHistory = require("../models/EmailHistory");
+const axios = require('axios');
+const EmailHistory = require('../models/EmailHistory');
 
 exports.generateEmail = async (req, res) => {
   try {
-    const { prompt, experience } = req.body;
+    const { prompt, experience, tone, name, jobRole } = req.body;
 
     if (!prompt) {
-      return res.status(400).json({
-        message: "Prompt is required",
-      });
+      return res.status(400).json({ message: 'Prompt is required' });
     }
 
     const groqApiKey = process.env.GROQ_API_KEY;
 
     if (!groqApiKey) {
-      return res.status(500).json({
-        message: "AI service is not configured",
-      });
+      return res.status(500).json({ message: 'AI service is not configured' });
     }
 
     let experienceMode = "Mid-level professional";
 
-    if (experience === "0-1")
-      experienceMode = "Fresher / Entry-level candidate";
+    if (experience === "0-1") experienceMode = "Fresher / Entry-level candidate";
+    if (experience === "1-2") experienceMode = "Junior professional";
+    if (experience === "2-3") experienceMode = "Mid-level candidate";
+    if (experience === "3-5") experienceMode = "Experienced professional";
+    if (experience === "5-10") experienceMode = "Senior professional";
+    if (experience === "10+") experienceMode = "Leadership / Managerial candidate";
 
-    if (experience === "1-2")
-      experienceMode = "Junior professional";
-
-    if (experience === "2-3")
-      experienceMode = "Mid-level candidate";
-
-    if (experience === "3-5")
-      experienceMode = "Experienced professional";
-
-    if (experience === "5-10")
-      experienceMode = "Senior professional";
-
-    if (experience === "10+")
-      experienceMode = "Leadership / Managerial candidate";
-
+    const selectedTone = tone || "formal";
 
     const systemPrompt = `
-You are an elite recruiter outreach strategist.
-
-Create premium outreach content for job opportunities.
-
-Candidate Level:
-${experienceMode}
-
-Use this experience level while writing confidence, achievements, and tone.
-
-==================================================
-RETURN ONLY VALID JSON
-==================================================
+Return ONLY valid JSON:
 
 {
   "subject": "",
@@ -61,125 +36,168 @@ RETURN ONLY VALID JSON
   "followUpEmail": ""
 }
 
-==================================================
-RULES
-==================================================
+STRICT RULES:
+- Each field MUST be completely different
+- Do NOT reuse sentences across sections
+- Do NOT include markdown or extra text
+- Follow structure EXACTLY
 
-SUBJECT:
-- 6 to 10 words
-- Powerful
-- Professional
-- Relevant to job role
+--------------------------------------------------
+EMAIL (emailBody) — DETAILED PROFESSIONAL EMAIL
+--------------------------------------------------
 
-==================================================
-COLD EMAIL FORMAT
-==================================================
+Write a ${selectedTone} professional cold email.
+
+Use a clearly ${selectedTone} tone with noticeable language differences.  
+Adjust sentence style, word choice, and personality accordingly.
+
+Structure EXACTLY:
 
 Dear Hiring Manager,
 
-[ONE LINE GAP]
+I am [Candidate Name], and I am writing to express my interest in the [Job Role].  
+Briefly introduce your background and core expertise.
 
-Professional body introducing candidate, skills, achievements, interest.
+Mention:
+- Key skills (2–3)
+- One or two relevant projects or experiences
+- Technologies you have worked with
 
-[ONE LINE GAP]
+Explain:
+- Why you are a strong fit for the role
+- What value you can bring to the company
 
-Best Regards,
-Candidate Name
+Show genuine interest in the company or role.
 
-==================================================
-LINKEDIN DM FORMAT
-==================================================
+Best Regards,  
+[Candidate Name]
+
+👉 Length: 120–160 words  
+
+--------------------------------------------------
+LINKEDIN DM (linkedInDM) — SHORT BUT IMPACTFUL
+--------------------------------------------------
+
+Write in a ${selectedTone} tone.
+
+Use a clearly ${selectedTone} tone with noticeable language differences.  
+Adjust sentence style, word choice, and personality accordingly.
+
+Structure EXACTLY:
 
 Hi Recruiter,
 
-[ONE LINE GAP]
+I came across the [Job Role] opportunity and wanted to connect.  
+I have experience in [key skill/project] and would love to explore this further.
 
-Short personalized outreach message.
+Looking forward to connecting.
 
-[ONE LINE GAP]
+Thanks,  
+[Candidate Name]
 
-Thanks,
-Candidate Name
+👉 Length: 40–60 words  
 
-==================================================
-FOLLOW UP EMAIL FORMAT
-==================================================
+--------------------------------------------------
+FOLLOW-UP EMAIL (followUpEmail) — POLITE REMINDER
+--------------------------------------------------
+
+Write in a ${selectedTone} tone.
+
+Use a clearly ${selectedTone} tone with noticeable language differences.  
+Adjust sentence style, word choice, and personality accordingly.
+
+Structure EXACTLY:
 
 Hello,
 
-[ONE LINE GAP]
+I am following up on my previous email regarding the [Job Role] position.  
+I wanted to reiterate my interest in the opportunity.
 
-Following up on previous message professionally.
+Briefly remind:
+- Your key strength OR project (1 line only)
 
-[ONE LINE GAP]
+I would appreciate any update regarding my application.
 
-Regards,
-Candidate Name
+Regards,  
+[Candidate Name]
 
-==================================================
-PROMPT FROM USER:
+👉 Length: 70–100 words  
+
+--------------------------------------------------
+SUBJECT
+--------------------------------------------------
+
+- 6–10 words
+- Professional and relevant to job role
+
+--------------------------------------------------
+USER INPUT:
 ${prompt}
-
-Return ONLY JSON.
 `;
 
     const aiResponse = await axios.post(
-      "https://api.groq.com/openai/v1/chat/completions",
+      'https://api.groq.com/openai/v1/chat/completions',
       {
         model: "llama-3.3-70b-versatile",
-        messages: [
-          {
-            role: "user",
-            content: systemPrompt,
-          },
-        ],
+        messages: [{ role: "user", content: systemPrompt }],
         temperature: 0.7,
-        max_tokens: 1024,
+        max_tokens: 1024
       },
       {
         headers: {
           Authorization: `Bearer ${groqApiKey}`,
-          "Content-Type": "application/json",
-        },
+          'Content-Type': 'application/json'
+        }
       }
     );
 
-    const generatedText =
-      aiResponse.data.choices[0].message.content;
+    let text = aiResponse.data.choices[0].message.content.trim();
+    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
 
-    const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
+    let parsed;
 
-    const parsedResponse = jsonMatch
-      ? JSON.parse(jsonMatch[0])
-      : JSON.parse(generatedText);
+    try {
+      const match = text.match(/\{[\s\S]*\}/);
+      parsed = JSON.parse(match ? match[0] : text);
+    } catch (err) {
+      console.log("Parse failed, using fallback split");
 
+      return res.status(200).json({
+        subject: "",
+        emailBody: text,
+        linkedInDM: text,
+        followUpEmail: text
+      });
+    }
+
+    const result = {
+      subject: parsed.subject || "",
+      emailBody: parsed.emailBody || "No email generated",
+      linkedInDM: parsed.linkedInDM || "No LinkedIn message generated",
+      followUpEmail: parsed.followUpEmail || "No follow-up generated"
+    };
 
     if (req.user) {
       const historyEntry = await EmailHistory.create({
         userId: req.user._id,
+        name,
+        jobRole,
+        experience,
         prompt,
-        subject: parsedResponse.subject || "",
-        emailBody: parsedResponse.emailBody || "",
-        linkedInDM: parsedResponse.linkedInDM || "",
-        followUpEmail: parsedResponse.followUpEmail || "",
+        tone,
+        ...result
       });
 
       return res.status(200).json(historyEntry);
     }
 
-    /* Guest Response */
-    return res.status(200).json({
-      subject: parsedResponse.subject || "",
-      emailBody: parsedResponse.emailBody || "",
-      linkedInDM: parsedResponse.linkedInDM || "",
-      followUpEmail: parsedResponse.followUpEmail || "",
-    });
+    return res.status(200).json(result);
 
   } catch (error) {
-    console.error(error.message);
+    console.log("ERROR:", error.response?.data || error.message);
 
     return res.status(500).json({
-      message: "Failed to generate email",
+      message: 'Failed to generate email'
     });
   }
 };
@@ -187,14 +205,31 @@ Return ONLY JSON.
 exports.getHistory = async (req, res) => {
   try {
     const history = await EmailHistory.find({
-      userId: req.user._id,
+      userId: req.user._id
     }).sort({ createdAt: -1 });
 
     res.status(200).json(history);
-
   } catch (error) {
     res.status(500).json({
-      message: "Failed to fetch history",
+      message: 'Failed to fetch history'
     });
+  }
+};
+
+exports.deleteHistory = async (req, res) => {
+  try {
+    const deleted = await EmailHistory.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user._id,
+    });
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    res.status(200).json({ message: "Deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Delete failed" });
   }
 };
