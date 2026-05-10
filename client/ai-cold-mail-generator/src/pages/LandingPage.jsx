@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import LoginPromptModal from "../components/LoginPromptModal";
 import {
   BoltIcon,
   ChartBarIcon,
@@ -36,7 +37,9 @@ const LandingPage = () => {
   ];
 
   return (
-    <div className="bg-[#050505] min-h-screen text-white overflow-hidden">
+    <div className="bg-[#050505] min-h-screen text-white overflow-hidden relative">
+      {!user && <LoginPromptModal />}
+
       <nav className="fixed top-0 left-0 w-full z-50 border-b border-gray-800 bg-[#050505]/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <h1 className="text-2xl font-black bg-gradient-to-r from-purple-300 to-violet-400 bg-clip-text text-transparent">
