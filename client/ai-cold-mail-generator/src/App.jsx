@@ -11,7 +11,7 @@ import VerifyOtp from "./pages/VerifyOtp";
 import History from "./pages/History";
 import ATSPage from "./pages/ATSPage";
 
-
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const { loading } = useAuth();
@@ -29,18 +29,38 @@ function App() {
       <Toaster position="top-right" />
 
       <Routes>
-        {/* Public Pages */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-otp" element={<VerifyOtp />} />
 
-        {/* Main Pages */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/ats" element={<ATSPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Fallback */}
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ats"
+          element={
+            <ProtectedRoute>
+              <ATSPage />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="*" element={<LandingPage />} />
       </Routes>
     </BrowserRouter>
