@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import { ClipboardDocumentIcon, CheckIcon } from "@heroicons/react/24/outline";
+import { motion } from "framer-motion";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -155,7 +156,6 @@ Make sure the tone is clearly ${tone}.
     }
   };
 
-  // ✅ NEW DELETE FUNCTION
   const handleDelete = async (id) => {
     try {
       await api.delete(`/ai/history/${id}`, {
@@ -227,6 +227,7 @@ Make sure the tone is clearly ${tone}.
               placeholder="Your Name"
               className="p-3 rounded-xl bg-black border border-gray-800"
             />
+
             <input
               value={jobRole}
               onChange={(e) => setJobRole(e.target.value)}
@@ -293,17 +294,20 @@ Make sure the tone is clearly ${tone}.
                 content={result.subject}
                 type="subject"
               />
+
               <SectionCard
                 title="Cold Email"
                 content={result.emailBody}
                 type="email"
                 subject={result.subject}
               />
+
               <SectionCard
                 title="LinkedIn Message"
                 content={result.linkedInDM}
                 type="linkedin"
               />
+
               <SectionCard
                 title="Follow-up Email"
                 content={result.followUpEmail}
@@ -311,14 +315,97 @@ Make sure the tone is clearly ${tone}.
               />
             </>
           ) : (
-            <div className="h-full flex items-center justify-center text-gray-500">
-              Generate output to see results
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="bg-[#111111] border border-gray-800 rounded-3xl p-6 relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-purple-500/10 blur-3xl"></div>
+
+                <div className="relative z-10">
+                  <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden mb-6">
+                    <motion.div
+                      initial={{ width: "0%" }}
+                      animate={{ width: "87%" }}
+                      transition={{ duration: 2 }}
+                      className="h-full bg-purple-400"
+                    />
+                  </div>
+
+                  <h3 className="text-2xl font-bold mb-2">ATS Analyzer</h3>
+
+                  <p className="text-gray-400">
+                    Scan resumes and improve ATS compatibility instantly.
+                  </p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7 }}
+                className="bg-[#111111] border border-gray-800 rounded-3xl p-6 relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-blue-500/10 blur-3xl"></div>
+
+                <div className="relative z-10">
+                  <motion.div
+                    initial={{ opacity: 0.3 }}
+                    animate={{ opacity: 1 }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                    }}
+                    className="text-sm text-blue-300 mb-4"
+                  >
+                    Generating personalized outreach...
+                  </motion.div>
+
+                  <h3 className="text-2xl font-bold mb-2">AI Mail Generator</h3>
+
+                  <p className="text-gray-400">
+                    Generate personalized cold emails using AI instantly.
+                  </p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9 }}
+                className="bg-[#111111] border border-gray-800 rounded-3xl p-6 relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-green-500/10 blur-3xl"></div>
+
+                <div className="relative z-10">
+                  <motion.div
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                    }}
+                    className="mb-4"
+                  >
+                    <div className="bg-[#050505] border border-gray-700 rounded-xl px-4 py-2 text-sm text-gray-300">
+                      Previous campaigns saved securely
+                    </div>
+                  </motion.div>
+
+                  <h3 className="text-2xl font-bold mb-2">History Tracking</h3>
+
+                  <p className="text-gray-400">
+                    Access and manage your previously generated campaigns.
+                  </p>
+                </div>
+              </motion.div>
             </div>
           )}
         </div>
       </div>
 
-      {/* UPDATED HISTORY MODAL */}
       {showHistory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>

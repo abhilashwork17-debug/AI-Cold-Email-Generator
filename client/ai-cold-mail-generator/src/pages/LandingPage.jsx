@@ -1,8 +1,8 @@
 import React from "react";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
-  ArrowRightIcon,
   BoltIcon,
   ChartBarIcon,
   DocumentTextIcon,
@@ -33,12 +33,6 @@ const LandingPage = () => {
         "Email + LinkedIn + Follow-up messaging from one powerful dashboard.",
       icon: DocumentTextIcon,
     },
-  ];
-
-  const stats = [
-    { number: "10K+", label: "Emails Generated" },
-    { number: "92%", label: "User Satisfaction" },
-    { number: "4x", label: "Faster Outreach" },
   ];
 
   return (
@@ -119,19 +113,202 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <section className="px-6 pb-24">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
-          {stats.map((item, index) => (
-            <div
-              key={index}
-              className="bg-[#111111] border border-gray-800 rounded-2xl p-8 text-center hover:bg-[#1a1a1a] transition-all duration-300"
-            >
-              <h3 className="text-4xl font-black text-purple-300">
-                {item.number}
-              </h3>
-              <p className="text-gray-400 mt-2">{item.label}</p>
+      <section className="px-6 pb-28 pt-6 relative">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-purple-500/5 blur-[180px] rounded-full"></div>
+
+        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 80 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            whileHover={{
+              scale: 1.02,
+            }}
+            className="group relative bg-[#111111]/90 backdrop-blur-xl border border-gray-800 rounded-[32px] p-8 overflow-hidden"
+          >
+            <motion.div
+              animate={{
+                rotate: 360,
+              }}
+              transition={{
+                duration: 20,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+              className="absolute -top-32 -right-32 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"
+            />
+
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-400/20 flex items-center justify-center">
+                  <ChartBarIcon className="w-7 h-7 text-purple-300" />
+                </div>
+
+                <motion.div
+                  initial={{ opacity: 0.5 }}
+                  animate={{ opacity: 1 }}
+                  transition={{
+                    duration: 1,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                  }}
+                  className="text-purple-300 text-sm"
+                >
+                  Live Scan
+                </motion.div>
+              </div>
+
+              <div className="w-full h-3 bg-black rounded-full overflow-hidden mb-6">
+                <motion.div
+                  initial={{ width: "0%" }}
+                  whileInView={{ width: "92%" }}
+                  transition={{
+                    duration: 2,
+                    ease: "easeOut",
+                  }}
+                  viewport={{ once: true }}
+                  className="h-full bg-gradient-to-r from-purple-400 to-violet-500 rounded-full"
+                />
+              </div>
+
+              <h3 className="text-3xl font-black mb-4">ATS Analyzer</h3>
+
+              <p className="text-gray-400 leading-relaxed">
+                AI-powered resume scanning with intelligent keyword optimization
+                and ATS compatibility insights.
+              </p>
             </div>
-          ))}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 80 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            viewport={{ once: true }}
+            whileHover={{
+              scale: 1.02,
+            }}
+            className="group relative bg-[#111111]/90 backdrop-blur-xl border border-gray-800 rounded-[32px] p-8 overflow-hidden"
+          >
+            <motion.div
+              animate={{
+                rotate: -360,
+              }}
+              transition={{
+                duration: 25,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+              className="absolute -bottom-32 -left-32 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"
+            />
+
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-400/20 flex items-center justify-center">
+                  <BoltIcon className="w-7 h-7 text-blue-300" />
+                </div>
+
+                <motion.div
+                  animate={{
+                    opacity: [0.4, 1, 0.4],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                  }}
+                  className="text-blue-300 text-sm"
+                >
+                  AI Generating...
+                </motion.div>
+              </div>
+
+              <motion.div
+                animate={{
+                  x: [0, 6, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                }}
+                className="bg-black border border-gray-800 rounded-2xl p-4 mb-6 text-gray-300 text-sm"
+              >
+                Generating personalized recruiter outreach...
+              </motion.div>
+
+              <h3 className="text-3xl font-black mb-4">AI Mail Generator</h3>
+
+              <p className="text-gray-400 leading-relaxed">
+                Generate recruiter emails, LinkedIn outreach, and follow-ups
+                instantly using advanced AI.
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 80 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2 }}
+            viewport={{ once: true }}
+            whileHover={{
+              scale: 1.02,
+            }}
+            className="group relative bg-[#111111]/90 backdrop-blur-xl border border-gray-800 rounded-[32px] p-8 overflow-hidden"
+          >
+            <motion.div
+              animate={{
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+              }}
+              className="absolute top-0 right-0 w-48 h-48 bg-green-500/10 rounded-full blur-3xl"
+            />
+
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-14 h-14 rounded-2xl bg-green-500/10 border border-green-400/20 flex items-center justify-center">
+                  <DocumentTextIcon className="w-7 h-7 text-green-300" />
+                </div>
+
+                <motion.div
+                  animate={{
+                    y: [0, -5, 0],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                  }}
+                  className="text-green-300 text-sm"
+                >
+                  Auto Saved
+                </motion.div>
+              </div>
+
+              <motion.div
+                animate={{
+                  y: [0, -6, 0],
+                }}
+                transition={{
+                  duration: 2.5,
+                  repeat: Infinity,
+                }}
+                className="space-y-3 mb-6"
+              >
+                <div className="h-3 rounded-full bg-black border border-gray-800 w-full"></div>
+                <div className="h-3 rounded-full bg-black border border-gray-800 w-5/6"></div>
+                <div className="h-3 rounded-full bg-black border border-gray-800 w-4/6"></div>
+              </motion.div>
+
+              <h3 className="text-3xl font-black mb-4">History Tracking</h3>
+
+              <p className="text-gray-400 leading-relaxed">
+                Access, manage, and revisit your previously generated outreach
+                campaigns securely.
+              </p>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -139,6 +316,7 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold">Why Choose MailSmith?</h2>
+
             <p className="text-gray-400 mt-4">
               Built for job seekers, freelancers, and professionals.
             </p>
@@ -155,6 +333,7 @@ const LandingPage = () => {
                 </div>
 
                 <h3 className="text-xl font-semibold mb-3">{feature.name}</h3>
+
                 <p className="text-gray-400">{feature.description}</p>
               </div>
             ))}
@@ -170,7 +349,9 @@ const LandingPage = () => {
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8 text-center relative z-10">
           <div className="p-8 rounded-2xl bg-[#111111]/70 backdrop-blur-lg border border-gray-800 hover:border-purple-400 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] transition-all duration-300">
             <ShieldCheckIcon className="w-10 h-10 text-purple-300 mx-auto mb-4" />
+
             <h3 className="font-semibold text-lg">Secure</h3>
+
             <p className="text-gray-400 mt-2">
               Your data stays protected with strong encryption.
             </p>
@@ -178,7 +359,9 @@ const LandingPage = () => {
 
           <div className="p-8 rounded-2xl bg-[#111111]/70 backdrop-blur-lg border border-gray-800 hover:border-purple-400 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] transition-all duration-300">
             <StarIcon className="w-10 h-10 text-purple-300 mx-auto mb-4" />
+
             <h3 className="font-semibold text-lg">Loved by Users</h3>
+
             <p className="text-gray-400 mt-2">
               Trusted by professionals improving their outreach daily.
             </p>
@@ -186,7 +369,9 @@ const LandingPage = () => {
 
           <div className="p-8 rounded-2xl bg-[#111111]/70 backdrop-blur-lg border border-gray-800 hover:border-purple-400 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] transition-all duration-300">
             <SparklesIcon className="w-10 h-10 text-purple-300 mx-auto mb-4" />
+
             <h3 className="font-semibold text-lg">AI Optimized</h3>
+
             <p className="text-gray-400 mt-2">
               Smart AI ensures better results and higher success rates.
             </p>
