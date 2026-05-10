@@ -43,7 +43,6 @@ const LandingPage = () => {
 
   return (
     <div className="bg-[#050505] min-h-screen text-white overflow-hidden">
-      {/* Navbar */}
       <nav className="fixed top-0 left-0 w-full z-50 border-b border-gray-800 bg-[#050505]/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <h1 className="text-2xl font-black bg-gradient-to-r from-purple-300 to-violet-400 bg-clip-text text-transparent">
@@ -52,24 +51,33 @@ const LandingPage = () => {
 
           <div className="flex items-center gap-4">
             {user ? (
-              <Link
-                to="/dashboard"
-                className="px-6 py-3 rounded-full bg-purple-400 text-black font-semibold hover:bg-purple-300 hover:scale-105 transition-all duration-300"
-              >
-                Dashboard
-              </Link>
+              <>
+                <Link
+                  to="/dashboard"
+                  className="px-6 py-3 rounded-full bg-purple-400 text-black font-semibold hover:bg-purple-300 transition"
+                >
+                  Dashboard
+                </Link>
+
+                <Link
+                  to="/login"
+                  className="px-6 py-3 rounded-full border border-gray-700 hover:border-purple-400 text-white transition"
+                >
+                  Login
+                </Link>
+              </>
             ) : (
               <>
                 <Link
                   to="/login"
-                  className="text-gray-300 hover:text-white transition-all duration-300"
+                  className="px-6 py-3 rounded-full border border-gray-700 hover:border-purple-400 text-white transition"
                 >
-                  Log in
+                  Login
                 </Link>
 
                 <Link
                   to="/signup"
-                  className="px-6 py-3 rounded-full bg-purple-400 text-black font-semibold hover:bg-purple-300 hover:scale-105 transition-all duration-300"
+                  className="px-6 py-3 rounded-full bg-purple-400 text-black font-semibold hover:bg-purple-300 transition"
                 >
                   Get Started
                 </Link>
@@ -79,7 +87,6 @@ const LandingPage = () => {
         </div>
       </nav>
 
-      {/* Hero */}
       <section className="pt-36 pb-28 px-6 relative">
         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-purple-500/20 blur-[140px] rounded-full"></div>
 
@@ -101,26 +108,17 @@ const LandingPage = () => {
             seconds using smart AI.
           </p>
 
-          <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+          <div className="mt-12 flex flex-col sm:flex-row justify-center gap-6">
             <Link
-              to={user ? "/dashboard" : "/signup"}
-              className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-purple-400 text-black font-semibold hover:bg-purple-300 hover:scale-105 transition-all duration-300"
+              to="/ats"
+              className="px-10 py-5 rounded-full bg-green-400 text-black text-lg font-bold hover:bg-green-300 hover:scale-105 transition-all duration-300"
             >
-              Start Free
-              <ArrowRightIcon className="w-4 h-4 ml-2" />
-            </Link>
-
-            <Link
-              to="/login"
-              className="px-8 py-4 rounded-full border border-gray-700 hover:border-purple-400 text-white hover:bg-[#111111] transition-all duration-300"
-            >
-              Login
+              ATS Checker
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Stats */}
       <section className="px-6 pb-24">
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
           {stats.map((item, index) => (
@@ -137,7 +135,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Features */}
       <section className="px-6 py-24 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
@@ -151,7 +148,7 @@ const LandingPage = () => {
             {features.map((feature) => (
               <div
                 key={feature.name}
-                className="p-8 rounded-2xl bg-[#111111] border border-gray-800 hover:bg-[#1a1a1a] hover:shadow-[0_0_30px_rgba(168,85,247,0.12)] transition-all duration-300"
+                className="p-8 rounded-2xl bg-[#111111] border border-gray-800 hover:bg-[#1a1a1a] transition-all duration-300"
               >
                 <div className="w-12 h-12 rounded-xl bg-purple-400/10 flex items-center justify-center mb-6">
                   <feature.icon className="w-6 h-6 text-purple-300" />
@@ -165,54 +162,38 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Trust Section */}
-      <section className="py-24 px-6">
-        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8 text-center">
-          <div>
+      <section className="py-24 px-6 relative">
+        <div className="absolute inset-0 flex justify-center">
+          <div className="w-[400px] h-[400px] bg-purple-500/10 blur-[120px] rounded-full"></div>
+        </div>
+
+        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8 text-center relative z-10">
+          <div className="p-8 rounded-2xl bg-[#111111]/70 backdrop-blur-lg border border-gray-800 hover:border-purple-400 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] transition-all duration-300">
             <ShieldCheckIcon className="w-10 h-10 text-purple-300 mx-auto mb-4" />
             <h3 className="font-semibold text-lg">Secure</h3>
-            <p className="text-gray-400 mt-2">Your data stays protected.</p>
+            <p className="text-gray-400 mt-2">
+              Your data stays protected with strong encryption.
+            </p>
           </div>
 
-          <div>
+          <div className="p-8 rounded-2xl bg-[#111111]/70 backdrop-blur-lg border border-gray-800 hover:border-purple-400 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] transition-all duration-300">
             <StarIcon className="w-10 h-10 text-purple-300 mx-auto mb-4" />
             <h3 className="font-semibold text-lg">Loved by Users</h3>
             <p className="text-gray-400 mt-2">
-              Trusted by growing professionals.
+              Trusted by professionals improving their outreach daily.
             </p>
           </div>
 
-          <div>
+          <div className="p-8 rounded-2xl bg-[#111111]/70 backdrop-blur-lg border border-gray-800 hover:border-purple-400 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] transition-all duration-300">
             <SparklesIcon className="w-10 h-10 text-purple-300 mx-auto mb-4" />
             <h3 className="font-semibold text-lg">AI Optimized</h3>
             <p className="text-gray-400 mt-2">
-              Outputs built to convert better.
+              Smart AI ensures better results and higher success rates.
             </p>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="px-6 pb-24 text-center">
-        <div className="max-w-4xl mx-auto bg-[#111111] border border-gray-800 rounded-3xl p-12">
-          <h2 className="text-4xl font-bold">Ready to Get More Replies?</h2>
-
-          <p className="text-gray-400 mt-4">
-            Join professionals using AI to improve outreach.
-          </p>
-
-          <div className="mt-8">
-            <Link
-              to={user ? "/dashboard" : "/signup"}
-              className="px-8 py-4 rounded-full bg-purple-400 text-black font-semibold hover:bg-purple-300 hover:scale-105 transition-all duration-300"
-            >
-              Start Now
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
       <footer className="border-t border-gray-800 py-10 text-center bg-black">
         <p className="text-gray-500 text-sm">
           © {new Date().getFullYear()} MailSmith. All rights reserved.

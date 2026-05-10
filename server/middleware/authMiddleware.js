@@ -1,9 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-/* =========================================
-   PROTECTED ROUTES (Login Required)
-========================================= */
 const protect = async (req, res, next) => {
   try {
     let token;
