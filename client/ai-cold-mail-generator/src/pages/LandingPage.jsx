@@ -13,7 +13,7 @@ import {
 } from "@heroicons/react/24/outline";
 
 const LandingPage = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
   const features = [
     {
@@ -38,7 +38,7 @@ const LandingPage = () => {
 
   return (
     <div className="bg-[#050505] min-h-screen text-white overflow-hidden relative">
-      {!user && <LoginPromptModal />}
+      {!loading && !user && <LoginPromptModal />}
 
       <nav className="fixed top-0 left-0 w-full z-50 border-b border-gray-800 bg-[#050505]/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -47,39 +47,12 @@ const LandingPage = () => {
           </h1>
 
           <div className="flex items-center gap-4">
-            {user ? (
-              <>
-                <Link
-                  to="/dashboard"
-                  className="px-6 py-3 rounded-full bg-purple-400 text-black font-semibold hover:bg-purple-300 transition"
-                >
-                  Dashboard
-                </Link>
-
-                <Link
-                  to="/login"
-                  className="px-6 py-3 rounded-full border border-gray-700 hover:border-purple-400 text-white transition"
-                >
-                  Login
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="px-6 py-3 rounded-full border border-gray-700 hover:border-purple-400 text-white transition"
-                >
-                  Login
-                </Link>
-
-                <Link
-                  to="/signup"
-                  className="px-6 py-3 rounded-full bg-purple-400 text-black font-semibold hover:bg-purple-300 transition"
-                >
-                  Get Started
-                </Link>
-              </>
-            )}
+            <Link
+              to={user ? "/dashboard" : "/"}
+              className="px-6 py-3 rounded-full bg-purple-400 text-black font-semibold hover:bg-purple-300 transition"
+            >
+              Dashboard
+            </Link>
           </div>
         </div>
       </nav>
@@ -107,7 +80,7 @@ const LandingPage = () => {
 
           <div className="mt-12 flex flex-col sm:flex-row justify-center gap-6">
             <Link
-              to="/ats"
+              to={user ? "/ats" : "/"}
               className="px-10 py-5 rounded-full bg-green-400 text-black text-lg font-bold hover:bg-green-300 hover:scale-105 transition-all duration-300"
             >
               ATS Checker

@@ -3,88 +3,302 @@ const pdfParse = require("pdf-parse");
 
 exports.analyzeResume = async (req, res) => {
   try {
-    const jobDesc = req.body.jobDesc.toLowerCase();
+    const stopWords = new Set([
+      "with",
+      "have",
+      "from",
+      "that",
+      "this",
+      "will",
+      "your",
+      "about",
+      "their",
+      "there",
+      "which",
+      "would",
+      "could",
+      "should",
+      "both",
+      "side",
+      "client",
+      "server",
+      "functional",
+      "capable",
+      "good",
+      "strong",
+      "using",
+      "used",
+      "into",
+      "over",
+      "under",
+      "through",
+      "while",
+      "where",
+      "when",
+      "what",
+      "were",
+      "been",
+      "being",
+      "able",
+      "very",
+      "also",
+      "than",
+      "then",
+      "them",
+      "they",
+      "some",
+      "many",
+      "more",
+      "most",
+      "such",
+      "each",
+      "other",
+      "like",
+      "just",
+      "only",
+      "across",
+      "accomplished",
+      "responsible",
+      "development",
+      "developer",
+      "engineering",
+      "software",
+      "team",
+      "project",
+      "projects",
+      "application",
+      "system",
+    ]);
+
+    const importantSkills = [
+      "react",
+      "nextjs",
+      "javascript",
+      "typescript",
+      "nodejs",
+      "express",
+      "mongodb",
+      "mysql",
+      "postgresql",
+      "redis",
+      "docker",
+      "kubernetes",
+      "aws",
+      "azure",
+      "firebase",
+      "tailwind",
+      "python",
+      "java",
+      "c++",
+      "machine learning",
+      "deep learning",
+      "tensorflow",
+      "pytorch",
+      "rest api",
+      "graphql",
+      "jwt",
+      "git",
+      "github",
+      "linux",
+      "html",
+      "css",
+      "socketio",
+      "django",
+      "flask",
+      "fastapi",
+      "microservices",
+      "devops",
+      "ci/cd",
+      "figma",
+      "seo",
+      "nlp",
+      "ai",
+      "data structures",
+      "algorithms",
+    ];
+
+    const normalizeText = (text) => {
+      return text
+        .toLowerCase()
+        .replace(/[^a-z0-9+#.\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    };
+
+    const jobDesc = normalizeText(req.body.jobDesc);
 
     const dataBuffer = fs.readFileSync(req.file.path);
     const pdfData = await pdfParse(dataBuffer);
 
-    const resumeText = pdfData.text.toLowerCase();
+    const resumeText = normalizeText(pdfData.text);
 
-    // =========================
-    // 1. KEYWORD MATCH (50%)
-    // =========================
-    const jobWords = jobDesc.split(/\W+/).filter(w => w.length > 3);
-    const resumeWords = new Set(resumeText.split(/\W+/));
+    const extractedKeywords = [];
 
-    let matchCount = 0;
-    let missing = [];
-
-    jobWords.forEach((word) => {
-      if (resumeWords.has(word)) {
-        matchCount++;
-      } else {
-        missing.push(word);
+    importantSkills.forEach((skill) => {
+      if (
+        jobDesc.includes(skill) &&
+        !extractedKeywords.includes(skill)
+      ) {
+        extractedKeywords.push(skill);
       }
     });
 
-    const keywordScore = Math.min(50, (matchCount / jobWords.length) * 50);
+    const jobWords = jobDesc
+      .split(" ")
+      .filter(
+        (word) =>
+          word.length > 2 &&
+          !stopWords.has(word)
+      );
 
-    // =========================
-    // 2. SECTION DETECTION (20%)
-    // =========================
-    const sections = ["education", "experience", "skills", "projects"];
-    let sectionFound = 0;
-
-    sections.forEach(sec => {
-      if (resumeText.includes(sec)) sectionFound++;
+    jobWords.forEach((word) => {
+      if (
+        !extractedKeywords.includes(word) &&
+        word.match(/[a-z]/)
+      ) {
+        extractedKeywords.push(word);
+      }
     });
 
-    const sectionScore = (sectionFound / sections.length) * 20;
+    const uniqueKeywords = [...new Set(extractedKeywords)];
 
-    // =========================
-    // 3. FORMATTING (15%)
-    // =========================
+    const matchedKeywords = [];
+    const missingKeywords = [];
+
+    uniqueKeywords.forEach((keyword) => {
+      if (resumeText.includes(keyword)) {
+        matchedKeywords.push(keyword);
+      } else {
+        missingKeywords.push(keyword);
+      }
+    });
+
+    const keywordScore = Math.min(
+      60,
+      Math.floor(
+        (matchedKeywords.length / uniqueKeywords.length) * 60
+      )
+    );
+
+    const sections = [
+      "education",
+      "experience",
+      "skills",
+      "projects",
+      "certifications",
+      "internship",
+    ];
+
+    let sectionFound = 0;
+
+    sections.forEach((section) => {
+      if (resumeText.includes(section)) {
+        sectionFound++;
+      }
+    });
+
+    const sectionScore = Math.min(
+      20,
+      Math.floor((sectionFound / sections.length) * 20)
+    );
+
     let formatScore = 15;
 
-    if (resumeText.length < 300) formatScore -= 5;
-    if (resumeText.includes("table")) formatScore -= 3;
-    if (resumeText.includes("image")) formatScore -= 3;
+    if (resumeText.length < 500) {
+      formatScore -= 5;
+    }
 
-    // =========================
-    // 4. READABILITY (15%)
-    // =========================
-    const sentences = resumeText.split(".");
-    const avgLength =
-      sentences.reduce((acc, s) => acc + s.length, 0) / sentences.length;
+    if (resumeText.length > 6000) {
+      formatScore -= 3;
+    }
+
+    if (
+      resumeText.includes("table") ||
+      resumeText.includes("image")
+    ) {
+      formatScore -= 3;
+    }
+
+    if (formatScore < 0) {
+      formatScore = 0;
+    }
+
+    const sentences = resumeText
+      .split(/[.!?]/)
+      .filter((s) => s.trim().length > 0);
+
+    const avgSentenceLength =
+      sentences.reduce((acc, curr) => acc + curr.length, 0) /
+      (sentences.length || 1);
 
     let readabilityScore = 15;
-    if (avgLength > 200) readabilityScore -= 5;
 
-    // =========================
-    // FINAL SCORE
-    // =========================
-    const totalScore = Math.floor(
-      keywordScore + sectionScore + formatScore + readabilityScore
-    );
+    if (avgSentenceLength > 180) {
+      readabilityScore -= 5;
+    }
+
+    if (avgSentenceLength > 250) {
+      readabilityScore -= 5;
+    }
+
+    if (readabilityScore < 0) {
+      readabilityScore = 0;
+    }
+
+    const totalScore =
+      keywordScore +
+      sectionScore +
+      formatScore +
+      readabilityScore;
+
+    const suggestions = [];
+
+    if (missingKeywords.length > 0) {
+      suggestions.push(
+        "Add more job-specific technical keywords to improve ATS matching."
+      );
+    }
+
+    if (sectionScore < 15) {
+      suggestions.push(
+        "Include important resume sections like Projects, Skills, Certifications, and Experience."
+      );
+    }
+
+    if (formatScore < 12) {
+      suggestions.push(
+        "Avoid overly complex formatting, tables, and images for better ATS parsing."
+      );
+    }
+
+    if (readabilityScore < 12) {
+      suggestions.push(
+        "Use shorter and clearer bullet points for better readability."
+      );
+    }
+
+    if (totalScore >= 85) {
+      suggestions.push(
+        "Excellent ATS compatibility. Your resume is highly optimized."
+      );
+    }
 
     res.json({
       score: totalScore,
       breakdown: {
-        keywordScore: Math.floor(keywordScore),
-        sectionScore: Math.floor(sectionScore),
-        formatScore: Math.floor(formatScore),
-        readabilityScore: Math.floor(readabilityScore),
+        keywordScore,
+        sectionScore,
+        formatScore,
+        readabilityScore,
       },
-      missing: missing.slice(0, 10),
-      suggestions: [
-        "Add missing keywords from job description",
-        "Ensure sections like Skills, Experience are present",
-        "Avoid tables and images in resume",
-        "Keep sentences concise and readable"
-      ]
+      matchedKeywords: matchedKeywords.slice(0, 20),
+      missing: missingKeywords.slice(0, 15),
+      suggestions,
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Error analyzing resume" });
+    res.status(500).json({
+      message: "Error analyzing resume",
+    });
   }
 };

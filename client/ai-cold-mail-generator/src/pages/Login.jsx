@@ -26,7 +26,7 @@ const Login = () => {
 
       login(data);
       toast.success("Logged in successfully!");
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       const msg = error.response?.data?.message;
       const userId = error.response?.data?.userId;

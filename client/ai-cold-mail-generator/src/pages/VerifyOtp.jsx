@@ -36,8 +36,12 @@ const VerifyOtp = () => {
       });
 
       login(data);
+
       toast.success("Email verified successfully!");
-      navigate("/dashboard");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 500);
     } catch (error) {
       toast.error(error.response?.data?.message || "Verification failed");
     } finally {

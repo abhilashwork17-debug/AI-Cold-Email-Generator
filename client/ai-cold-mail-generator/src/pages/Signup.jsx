@@ -32,7 +32,6 @@ const Signup = () => {
     } catch (error) {
       const msg = error.response?.data?.message;
 
-      // ONLY necessary improvement added here
       if (msg === "Email already registered. Please try logging in.") {
         toast.error(msg);
         navigate("/login");

@@ -26,7 +26,7 @@ connectDB();
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
 app.use("/api/ats", atsRoutes);
-app.use("/api/resume", resumeWriterRoutes);
+
 
 
 
