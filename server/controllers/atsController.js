@@ -68,59 +68,36 @@ exports.analyzeResume = async (req, res) => {
       "projects",
       "application",
       "system",
+      "work",
+      "working",
+      "skills",
+      "skill",
+      "knowledge",
+      "experience",
+      "experiences",
+      "resume",
+      "job",
+      "role",
+      "candidate",
+      "position",
+      "requirements",
+      "requirement",
+      "preferred",
+      "ability",
+      "understanding",
+      "including",
+      "ensure",
+      "support",
+      "supporting",
+      "manage",
+      "management",
+      "managing",
     ]);
-
-    const importantSkills = [
-      "react",
-      "nextjs",
-      "javascript",
-      "typescript",
-      "nodejs",
-      "express",
-      "mongodb",
-      "mysql",
-      "postgresql",
-      "redis",
-      "docker",
-      "kubernetes",
-      "aws",
-      "azure",
-      "firebase",
-      "tailwind",
-      "python",
-      "java",
-      "c++",
-      "machine learning",
-      "deep learning",
-      "tensorflow",
-      "pytorch",
-      "rest api",
-      "graphql",
-      "jwt",
-      "git",
-      "github",
-      "linux",
-      "html",
-      "css",
-      "socketio",
-      "django",
-      "flask",
-      "fastapi",
-      "microservices",
-      "devops",
-      "ci/cd",
-      "figma",
-      "seo",
-      "nlp",
-      "ai",
-      "data structures",
-      "algorithms",
-    ];
 
     const normalizeText = (text) => {
       return text
         .toLowerCase()
-        .replace(/[^a-z0-9+#.\s]/g, " ")
+        .replace(/[^a-z0-9+#.\-\s]/g, " ")
         .replace(/\s+/g, " ")
         .trim();
     };
@@ -132,35 +109,25 @@ exports.analyzeResume = async (req, res) => {
 
     const resumeText = normalizeText(pdfData.text);
 
-    const extractedKeywords = [];
-
-    importantSkills.forEach((skill) => {
-      if (
-        jobDesc.includes(skill) &&
-        !extractedKeywords.includes(skill)
-      ) {
-        extractedKeywords.push(skill);
-      }
-    });
-
-    const jobWords = jobDesc
+    const words = jobDesc
       .split(" ")
+      .map((word) => word.trim())
       .filter(
         (word) =>
           word.length > 2 &&
-          !stopWords.has(word)
+          !stopWords.has(word) &&
+          /^[a-zA-Z0-9+#.\-]+$/.test(word)
       );
 
-    jobWords.forEach((word) => {
-      if (
-        !extractedKeywords.includes(word) &&
-        word.match(/[a-z]/)
-      ) {
-        extractedKeywords.push(word);
-      }
+    const frequencyMap = {};
+
+    words.forEach((word) => {
+      frequencyMap[word] = (frequencyMap[word] || 0) + 1;
     });
 
-    const uniqueKeywords = [...new Set(extractedKeywords)];
+    const uniqueKeywords = Object.keys(frequencyMap)
+      .sort((a, b) => frequencyMap[b] - frequencyMap[a])
+      .slice(0, 40);
 
     const matchedKeywords = [];
     const missingKeywords = [];
@@ -173,11 +140,19 @@ exports.analyzeResume = async (req, res) => {
       }
     });
 
+    const totalKeywords = uniqueKeywords.length;
+
+    const matchedCount = matchedKeywords.length;
+
+    const missingCount = missingKeywords.length;
+
+    const keywordMatchPercentage = Math.floor(
+      (matchedCount / totalKeywords) * 100
+    );
+
     const keywordScore = Math.min(
       60,
-      Math.floor(
-        (matchedKeywords.length / uniqueKeywords.length) * 60
-      )
+      Math.floor((keywordMatchPercentage / 100) * 60)
     );
 
     const sections = [
@@ -187,6 +162,8 @@ exports.analyzeResume = async (req, res) => {
       "projects",
       "certifications",
       "internship",
+      "achievements",
+      "summary",
     ];
 
     let sectionFound = 0;
@@ -208,7 +185,7 @@ exports.analyzeResume = async (req, res) => {
       formatScore -= 5;
     }
 
-    if (resumeText.length > 6000) {
+    if (resumeText.length > 7000) {
       formatScore -= 3;
     }
 
@@ -255,31 +232,37 @@ exports.analyzeResume = async (req, res) => {
 
     if (missingKeywords.length > 0) {
       suggestions.push(
-        "Add more job-specific technical keywords to improve ATS matching."
+        "Add more job-specific keywords and technical skills from the job description."
       );
     }
 
     if (sectionScore < 15) {
       suggestions.push(
-        "Include important resume sections like Projects, Skills, Certifications, and Experience."
+        "Include important resume sections like Skills, Experience, Projects, and Certifications."
       );
     }
 
     if (formatScore < 12) {
       suggestions.push(
-        "Avoid overly complex formatting, tables, and images for better ATS parsing."
+        "Avoid overly complex formatting, tables, graphics, and images for better ATS compatibility."
       );
     }
 
     if (readabilityScore < 12) {
       suggestions.push(
-        "Use shorter and clearer bullet points for better readability."
+        "Use concise bullet points and shorter sentences to improve readability."
+      );
+    }
+
+    if (matchedKeywords.length < 10) {
+      suggestions.push(
+        "Increase alignment between your resume and the job description by adding more relevant domain-specific keywords."
       );
     }
 
     if (totalScore >= 85) {
       suggestions.push(
-        "Excellent ATS compatibility. Your resume is highly optimized."
+        "Excellent ATS compatibility. Your resume is highly optimized for this role."
       );
     }
 
@@ -291,12 +274,17 @@ exports.analyzeResume = async (req, res) => {
         formatScore,
         readabilityScore,
       },
+      totalKeywords,
+      matchedCount,
+      missingCount,
+      keywordMatchPercentage,
       matchedKeywords: matchedKeywords.slice(0, 20),
       missing: missingKeywords.slice(0, 15),
       suggestions,
     });
   } catch (error) {
     console.log(error);
+
     res.status(500).json({
       message: "Error analyzing resume",
     });
