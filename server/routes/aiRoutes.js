@@ -19,7 +19,7 @@ router.get(
   aiController.getHistory
 );
 
-// ✅ ADD THIS ONLY
+
 router.delete(
   "/history/:id",
   protect,

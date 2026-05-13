@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
-import { Link } from "react-router-dom";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import { ClipboardDocumentIcon, CheckIcon } from "@heroicons/react/24/outline";
@@ -11,6 +10,7 @@ const Dashboard = () => {
   const [name, setName] = useState("");
   const [jobRole, setJobRole] = useState("");
   const [experience, setExperience] = useState("0-1");
+  const [tone, setTone] = useState("Professional");
   const [prompt, setPrompt] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -41,6 +41,7 @@ const Dashboard = () => {
 Candidate Name: ${name}
 Target Job Role: ${jobRole}
 Experience Level: ${experience} Years
+Tone: ${tone}
 Additional Details: ${prompt}
 `;
 
@@ -54,6 +55,7 @@ Additional Details: ${prompt}
           name,
           jobRole,
           experience,
+          tone,
           prompt: finalPrompt,
         },
         { headers },
@@ -77,19 +79,11 @@ Additional Details: ${prompt}
 
   const isBlocked = !user && guestUsage >= 2;
 
-  const copyToClipboard = (text, type) => {
-    navigator.clipboard.writeText(text);
-    setCopied(type);
-    toast.success("Copied!");
-    setTimeout(() => setCopied(""), 2000);
-  };
-
   const SectionCard = ({ title, content, type, subject }) => {
     const handleCopy = (e) => {
       e.preventDefault();
       e.stopPropagation();
 
-      // 🔥 SAVE SCROLL POSITION
       const scrollY = window.scrollY;
 
       let textToCopy = content;
@@ -103,7 +97,6 @@ Additional Details: ${prompt}
       setCopied(type);
       toast.success("Copied!");
 
-      // 🔥 RESTORE SCROLL POSITION
       window.scrollTo({
         top: scrollY,
         behavior: "instant",
@@ -114,7 +107,6 @@ Additional Details: ${prompt}
 
     return (
       <div className="bg-[#111111] p-6 rounded-2xl border border-gray-800 mb-4">
-        {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">{title}</h3>
 
@@ -131,7 +123,6 @@ Additional Details: ${prompt}
           </button>
         </div>
 
-        {/* CONTENT */}
         <div className="bg-[#050505] p-5 rounded-xl border border-gray-700 text-gray-300 whitespace-pre-line leading-7">
           {content?.replace(/\\n/g, "\n")}
         </div>
@@ -142,9 +133,10 @@ Additional Details: ${prompt}
   return (
     <div className="min-h-screen bg-[#050505] text-white px-6 py-10 relative">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
-        {/* LEFT PANEL */}
         <div className="w-full lg:w-1/3 bg-[#111111] p-6 rounded-2xl border border-gray-800">
-          <h2 className="text-xl font-bold mb-2">New Campaign</h2>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-bold">New Campaign</h2>
+          </div>
 
           {!user ? (
             <p className="text-sm text-gray-400 mb-5">
@@ -161,6 +153,7 @@ Additional Details: ${prompt}
 
           <form onSubmit={handleGenerate} className="flex flex-col">
             <label className="text-sm text-gray-400 mb-2">Your Name</label>
+
             <input
               disabled={isBlocked}
               value={name}
@@ -171,6 +164,7 @@ Additional Details: ${prompt}
             <label className="text-sm text-gray-400 mb-2">
               Target Job Role
             </label>
+
             <input
               disabled={isBlocked}
               value={jobRole}
@@ -193,6 +187,21 @@ Additional Details: ${prompt}
               <option value="3-5">3 - 5 Years</option>
               <option value="5-10">5 - 10 Years</option>
               <option value="10+">10+ Years</option>
+            </select>
+
+            <label className="text-sm text-gray-400 mb-2">Tone</label>
+
+            <select
+              disabled={isBlocked}
+              value={tone}
+              onChange={(e) => setTone(e.target.value)}
+              className="mb-4 bg-[#050505] border border-gray-800 rounded-xl px-4 py-3"
+            >
+              <option value="Professional">Professional</option>
+              <option value="Friendly">Friendly</option>
+              <option value="Formal">Formal</option>
+              <option value="Confident">Confident</option>
+              <option value="Persuasive">Persuasive</option>
             </select>
 
             <textarea
@@ -221,7 +230,6 @@ Goal:`}
           </form>
         </div>
 
-        {/* RIGHT PANEL */}
         <div className="w-full lg:w-2/3">
           {result ? (
             <>
@@ -232,17 +240,20 @@ Goal:`}
                 content={result.subject}
                 type="subject"
               />
+
               <SectionCard
                 title="Cold Email"
                 content={result.emailBody}
                 type="email"
                 subject={result.subject}
               />
+
               <SectionCard
                 title="LinkedIn Message"
                 content={result.linkedInDM}
                 type="linkedin"
               />
+
               <SectionCard
                 title="Follow-up Email"
                 content={result.followUpEmail}
@@ -257,28 +268,29 @@ Goal:`}
         </div>
       </div>
 
-      {/* LOCK SCREEN */}
       {isBlocked && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
           <div className="bg-[#111111] border border-gray-800 rounded-3xl p-8 max-w-md text-center">
             <h2 className="text-2xl font-bold mb-3">Login Required</h2>
+
             <p className="text-gray-400 mb-6">
               You've used your 2 free generations. Please login to continue.
             </p>
 
             <div className="flex gap-3">
-              <Link
-                to="/login"
+              <a
+                href="/login"
                 className="flex-1 bg-purple-400 py-3 rounded-full text-black font-semibold"
               >
                 Sign In
-              </Link>
-              <Link
-                to="/signup"
+              </a>
+
+              <a
+                href="/signup"
                 className="flex-1 border border-gray-700 py-3 rounded-full"
               >
                 Sign Up
-              </Link>
+              </a>
             </div>
           </div>
         </div>

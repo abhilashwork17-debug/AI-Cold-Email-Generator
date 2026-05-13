@@ -13,8 +13,10 @@ const History = () => {
   const [copied, setCopied] = useState("");
 
   useEffect(() => {
-    fetchHistory();
-  }, []);
+    if (user?.token) {
+      fetchHistory();
+    }
+  }, [user]);
 
   const fetchHistory = async () => {
     try {

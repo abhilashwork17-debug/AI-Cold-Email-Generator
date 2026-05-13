@@ -72,7 +72,7 @@ Show genuine interest in the company or role.
 Best Regards,  
 [Candidate Name]
 
-👉 Length: 120–160 words  
+ Length: 120–160 words  
 
 --------------------------------------------------
 LINKEDIN DM (linkedInDM) — SHORT BUT IMPACTFUL
@@ -95,7 +95,7 @@ Looking forward to connecting.
 Thanks,  
 [Candidate Name]
 
-👉 Length: 40–60 words  
+ Length: 40–60 words  
 
 --------------------------------------------------
 FOLLOW-UP EMAIL (followUpEmail) — POLITE REMINDER
@@ -121,7 +121,7 @@ I would appreciate any update regarding my application.
 Regards,  
 [Candidate Name]
 
-👉 Length: 70–100 words  
+ Length: 70–100 words  
 
 --------------------------------------------------
 SUBJECT
