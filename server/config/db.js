@@ -9,7 +9,7 @@ const connectDB = async () => {
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`Error connecting to MongoDB: ${error.message}`);
-    process.exit(1);
+    console.error(`⚠️ Server running without active MongoDB. Please verify MongoDB cluster status in Atlas.`);
   }
 };
 
