@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
 
@@ -22,8 +22,8 @@ const ATSPage = () => {
     setLoading(true);
 
     try {
-      const { data } = await axios.post(
-        "http://localhost:3000/api/ats/analyze",
+      const { data } = await api.post(
+        "/ats/analyze",
         formData,
       );
 
@@ -31,11 +31,12 @@ const ATSPage = () => {
 
       toast.success("Analysis done!");
     } catch (error) {
-      toast.error("Failed");
+      toast.error(error.response?.data?.message || "Failed to analyze resume");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-[#050505] text-white px-6 py-10">

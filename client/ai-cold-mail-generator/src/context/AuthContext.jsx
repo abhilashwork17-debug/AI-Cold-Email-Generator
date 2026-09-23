@@ -8,14 +8,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      const userInfo = sessionStorage.getItem("userInfo");
+      const userInfo = localStorage.getItem("userInfo");
 
       if (userInfo) {
         setUser(JSON.parse(userInfo));
       }
     } catch (error) {
-      sessionStorage.removeItem("userInfo");
-      sessionStorage.removeItem("token");
+      localStorage.removeItem("userInfo");
+      localStorage.removeItem("token");
     } finally {
       setLoading(false);
     }
@@ -24,34 +24,21 @@ export const AuthProvider = ({ children }) => {
   const login = (userData) => {
     if (!userData) return;
 
-    sessionStorage.setItem("userInfo", JSON.stringify(userData));
+    localStorage.setItem("userInfo", JSON.stringify(userData));
 
     if (userData.token) {
-      sessionStorage.setItem("token", userData.token);
+      localStorage.setItem("token", userData.token);
     }
 
     setUser(userData);
   };
 
   const logout = () => {
-    sessionStorage.removeItem("userInfo");
-    sessionStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
+    localStorage.removeItem("token");
 
     setUser(null);
   };
-
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      sessionStorage.removeItem("userInfo");
-      sessionStorage.removeItem("token");
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
 
   return (
     <AuthContext.Provider
@@ -70,3 +57,4 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => useContext(AuthContext);
 
 export default AuthContext;
+

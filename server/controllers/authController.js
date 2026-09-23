@@ -56,8 +56,10 @@ exports.registerUser = async (req, res) => {
       await sendEmail({ email: user.email, subject: 'Email Verification OTP - AI Cold Mail Generator', message });
     } catch (error) {
       console.log('Email sending error:', error.message);
-      // Still allow registration even if email fails
+      await User.findByIdAndDelete(user._id);
+      return res.status(500).json({ message: 'Failed to send verification email. Please check your email address and try again.' });
     }
+
 
     res.status(201).json({
       message: 'User registered successfully. Please verify OTP sent to your email.',
