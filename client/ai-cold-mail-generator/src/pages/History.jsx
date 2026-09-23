@@ -3,7 +3,7 @@ import { Navigate, Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
-import { ClipboardDocumentIcon, CheckIcon } from "@heroicons/react/24/outline";
+import { ClipboardDocumentIcon, CheckIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 const History = () => {
   const { user } = useAuth();
@@ -20,17 +20,23 @@ const History = () => {
 
   const fetchHistory = async () => {
     try {
-      const { data } = await api.get("/ai/history", {
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
-      });
+      const { data } = await api.get("/ai/history");
 
       setHistory(data);
     } catch (error) {
       toast.error("Failed to fetch history");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/ai/history/${id}`);
+      setHistory(history.filter((item) => item._id !== id));
+      toast.success("Campaign deleted");
+    } catch (error) {
+      toast.error("Failed to delete campaign");
     }
   };
 
@@ -111,17 +117,29 @@ const History = () => {
           {history.map((item, index) => (
             <div
               key={item._id}
-              className="bg-[#0d0d0d] border border-gray-800 rounded-3xl p-6"
+              className="bg-[#0d0d0d] border border-gray-800 rounded-3xl p-6 relative group"
             >
               {/* Top */}
               <div className="mb-5 border-b border-gray-800 pb-4">
-                <h2 className="text-xl font-semibold text-purple-300">
-                  Campaign #{history.length - index}
-                </h2>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2 className="text-xl font-semibold text-purple-300">
+                      Campaign #{history.length - index}
+                    </h2>
 
-                <p className="text-xs text-gray-500 mt-2">
-                  {new Date(item.createdAt).toLocaleString()}
-                </p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {new Date(item.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => handleDelete(item._id)}
+                    className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition"
+                    title="Delete Campaign"
+                  >
+                    <TrashIcon className="w-5 h-5" />
+                  </button>
+                </div>
 
                 <div className="mt-4">
                   <p className="text-sm text-gray-400 mb-2">Prompt Used:</p>
@@ -163,5 +181,6 @@ const History = () => {
     </div>
   );
 };
+
 
 export default History;
