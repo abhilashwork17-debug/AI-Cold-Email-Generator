@@ -17,12 +17,14 @@ exports.generateEmail = async (req, res) => {
 
     let experienceMode = "Mid-level professional";
 
+    if (experience === "intern") experienceMode = "Intern / Trainee candidate";
     if (experience === "0-1") experienceMode = "Fresher / Entry-level candidate";
     if (experience === "1-2") experienceMode = "Junior professional";
     if (experience === "2-3") experienceMode = "Mid-level candidate";
     if (experience === "3-5") experienceMode = "Experienced professional";
     if (experience === "5-10") experienceMode = "Senior professional";
     if (experience === "10+") experienceMode = "Leadership / Managerial candidate";
+
 
     const selectedTone = tone || "formal";
 

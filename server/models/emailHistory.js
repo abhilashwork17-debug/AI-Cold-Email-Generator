@@ -6,6 +6,10 @@ const emailHistorySchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  name: { type: String },
+  jobRole: { type: String },
+  experience: { type: String },
+  tone: { type: String },
   prompt: { type: String, required: true },
   subject: { type: String, required: true },
   emailBody: { type: String, required: true },
@@ -14,4 +18,4 @@ const emailHistorySchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const EmailHistory = mongoose.model('EmailHistory', emailHistorySchema);
-module.exports = EmailHistory;
+module.exports = EmailHistory;
